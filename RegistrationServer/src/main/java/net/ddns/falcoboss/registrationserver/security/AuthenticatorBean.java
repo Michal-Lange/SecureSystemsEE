@@ -18,6 +18,7 @@ import net.ddns.falcoboss.registrationserver.usermanagement.UserBean;
 @LocalBean
 public class AuthenticatorBean {
 	
+	@SuppressWarnings("unused")
 	private final static Logger log = Logger.getLogger(RequestFilter.class.getName());
 	
 	@EJB

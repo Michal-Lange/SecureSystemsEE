@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.ddns.falcoboss.registration.server</groupId>
-	<artifactId>RegistrationServer</artifactId>
-	<version>0.1</version>
+	<artifactId>registration-server</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>Registration Server</name>
 	<description>The gate to the outside world.</description>
@@ -60,12 +60,6 @@
 			<version>5.1.38</version>
 		</dependency>
 		<dependency>
-			<groupId>net.ddns.falcoboss.common</groupId>
-			<artifactId>Common</artifactId>
-			<version>0.1</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20150729</version>
@@ -74,6 +68,11 @@
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
+		</dependency>
+		<dependency>
+			<groupId>net.ddns.falcoboss.common</groupId>
+			<artifactId>common</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>
@@ -91,6 +90,9 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
 				<version>2.6</version>
+				<configuration>
+					<attachClasses>true</attachClasses>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

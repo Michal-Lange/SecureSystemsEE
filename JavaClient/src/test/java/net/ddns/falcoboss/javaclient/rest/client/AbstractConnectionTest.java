@@ -14,6 +14,6 @@ public abstract class AbstractConnectionTest {
     @Before
     public void initClient() {
         this.client = ClientBuilder.newClient();
-        this.webTarget = this.client.target("http://localhost:8080/RegistrationServer/rest/service/");
+        this.webTarget = this.client.target("http://localhost:8080/registration-server/rest/service/");
     }
 }

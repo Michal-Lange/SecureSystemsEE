@@ -1,5 +1,6 @@
 package net.ddns.falcoboss.registrationserver.rest.client;
 
+import java.security.PublicKey;
 import java.util.concurrent.Future;
 
 import javax.ws.rs.client.Client;
@@ -24,13 +25,13 @@ public class MediatorRestClient {
         this.client = ClientBuilder.newClient();
     }
 	
-	final public Future<Response> requestNewFinalizationKey(String userServiceKey, String publicKeyString) {
+	final public Future<Response> requestNewFinalizationKey(String userServiceKey, String publicKeyBase64String) {
 		final Future<Response> futureResponse =
 				this.webTarget.path("generate-finalization-key/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, userServiceKey).
 				accept(MediaType.APPLICATION_JSON).
 				async()
-				.post(Entity.entity(publicKeyString, MediaType.APPLICATION_JSON),
+				.post(Entity.entity(publicKeyBase64String, MediaType.APPLICATION_JSON),
 				new InvocationCallback<Response>()
 				{
 					@Override

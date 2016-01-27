@@ -24,8 +24,6 @@ public class Facade extends Observable {
 
 	private String myUsername;
 	
-	//
-
 	public Facade() {
 		propertyReader = new PropertyReader();
 		restClient = new RestClient();

@@ -23,7 +23,7 @@ public interface MediatorServiceProxy extends Serializable {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void generateMediatorKey(
-        @Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final PublicKey publicKey);
+        @Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final String publicKeyBase64String);
     
     @POST
     @Path("sign-file")

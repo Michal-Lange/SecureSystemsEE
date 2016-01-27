@@ -54,6 +54,8 @@ public class SendReciveLoongPoolingMessageTest extends AbstractRestClientTest {
     	
     	response = restClient2.logout();
     	Assert.assertEquals(204, response.getStatus());
+    	
+    	
     }
     
     @After

@@ -5,6 +5,7 @@ import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,6 +23,7 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
+import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -178,6 +180,7 @@ public class RegisterService implements RegisterServiceProxy {
 		String password = usernameAndPasswordBean.getPassword();
 		
 		MediatorRestClient mediatorRestClient = new MediatorRestClient();
+		mediatorRestClient.setWebTarget("http://localhost:8080/MediatorServer/rest/service/"); 
 		
 		try {
 			if(authenticatorBean.isUsernameAndPasswordValid(serviceKey, username, password))
@@ -189,14 +192,20 @@ public class RegisterService implements RegisterServiceProxy {
 							KeyPair newKeyPair = PublicKeyCryptography.createKeyPair();
 							PublicKey publicKey = newKeyPair.getPublic();
 							PrivateKey privateKey = newKeyPair.getPrivate();
-							String publicKeyString = KeyHelper.getBase64StringFromPublicKey(publicKey);
-							Future<Response> futureResponse = mediatorRestClient.requestNewFinalizationKey(serviceKey, publicKeyString);
+							String publicKeyBase64String = KeyHelper.getBase64StringFromPublicKey(publicKey);
+							Future<Response> futureResponse = mediatorRestClient.requestNewFinalizationKey(serviceKey, publicKeyBase64String);
 							
 							BigInteger mediatorPrivateExponent = futureResponse.get().readEntity(BigInteger.class);
 
 							PrivateKey userPrivateKey = PublicKeyCryptography.calculateUserPrivateKey(privateKey, mediatorPrivateExponent);
 							
-							Response response = Response.ok(userPrivateKey, MediaType.APPLICATION_JSON).build();
+							String userPrivateKeyBase64String = KeyHelper.getBase64StringFromPrivateKey(userPrivateKey);
+							String userPublicKeyBase64String = KeyHelper.getBase64StringFromPublicKey(publicKey);
+					
+							List<String> keyStringList = Arrays.asList(userPrivateKeyBase64String, userPublicKeyBase64String);
+							
+							GenericEntity<List<String>> genericEntity = new GenericEntity<List<String>>(keyStringList) {};
+							Response response = Response.ok(genericEntity, MediaType.APPLICATION_JSON).build();
 			                asyncResponse.resume(response);
 							
 						} catch (Exception e) {

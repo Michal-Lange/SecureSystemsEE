@@ -44,6 +44,7 @@ public final class XmlSerializer {
 	/**
 	 * Unmarshal XML to Wrapper and return List value.
 	 */
+	@SuppressWarnings("unchecked")
 	private static <T> List<T> unmarshal(Unmarshaller unmarshaller, Class<T> clazz, String xmlLocation)
 			throws JAXBException {
 		StreamSource xml = new StreamSource(xmlLocation);
@@ -55,6 +56,7 @@ public final class XmlSerializer {
 	 * Wrap List in Wrapper, then leverage JAXBElement to supply root element
 	 * information.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private static void marshal(Marshaller marshaller, List<?> list, String name) throws JAXBException {
 		File file = new File(filename);
 		QName qName = new QName(name);

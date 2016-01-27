@@ -18,6 +18,6 @@ public class PartKeyGenerator {
 		byte[] privatePartExponent = new byte[(modulusBitLength + delta)/8];
 		SecureRandom secureRandom = new SecureRandom(signatureBytes);
 		secureRandom.nextBytes(privatePartExponent);
-		return new BigInteger(privatePartExponent);
+		return new BigInteger(1,privatePartExponent);
 	}
 }

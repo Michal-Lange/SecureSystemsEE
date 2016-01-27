@@ -9,10 +9,10 @@ public abstract class AbstractRestClientTest {
     public void initClient() {
     	restClient = new RestClient();
   		restClient.initClient();
-  		restClient.setWebTarget("http://localhost:8080/RegistrationServer/rest/service/");
+  		restClient.setWebTarget("http://localhost:8080/registration-server/rest/service/");
   		
   		restClient2 = new RestClient();
   		restClient2.initClient();
-  		restClient2.setWebTarget("http://localhost:8080/RegistrationServer/rest/service/");
+  		restClient2.setWebTarget("http://localhost:8080/registration-server/rest/service/");
     }
 }

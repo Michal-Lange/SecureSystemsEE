@@ -27,6 +27,10 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 
 public class MessageWindow extends JFrame implements Observer{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private User user;
 	private Facade facade;

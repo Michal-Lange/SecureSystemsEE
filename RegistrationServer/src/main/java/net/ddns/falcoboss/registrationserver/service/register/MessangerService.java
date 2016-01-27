@@ -14,7 +14,7 @@ public class MessangerService {
      * Default constructor. 
      */
     public MessangerService() {
-        // TODO Auto-generated constructor stub
+        
     }
 
 }

@@ -2,8 +2,8 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.ddns.falcoboss.java.client</groupId>
-	<artifactId>JavaClient</artifactId>
-	<version>0.2</version>
+	<artifactId>java-client</artifactId>
+	<version>1.0-SNAPSHOT</version>
 	<name>JavaClient</name>
 	<description>Client Application</description>
 	<properties>
@@ -47,8 +47,8 @@
 		</dependency>
 		<dependency>
 			<groupId>net.ddns.falcoboss.common</groupId>
-			<artifactId>Common</artifactId>
-			<version>0.1</version>
+			<artifactId>common</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<build>

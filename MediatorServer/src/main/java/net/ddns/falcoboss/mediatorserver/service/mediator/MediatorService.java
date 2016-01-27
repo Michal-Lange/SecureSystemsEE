@@ -1,10 +1,13 @@
 package net.ddns.falcoboss.mediatorserver.service.mediator;
 
 import java.math.BigInteger;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
+import java.util.logging.Logger;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -19,25 +22,37 @@ import net.ddns.falcoboss.mediatorserver.partkeys.PartKey;
 import net.ddns.falcoboss.mediatorserver.partkeys.PartKeyBean;
 import net.ddns.falcoboss.mediatorserver.service.signature.PartKeyGenerator;
 
+
 @Stateless(name = "MediatorService", mappedName = "ejb/MediatorService")
 public class MediatorService implements MediatorServiceProxy  {
-	
-	private static final long serialVersionUID = -369844580949941559L;
-	
-	//public final static String secret = "secret";
-	
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8331795842796782882L;
+
 	public final static int delta = 120;
+	
+	private final static Logger log = Logger.getLogger(MediatorService.class.getName());
 	
 	@EJB
 	PartKeyBean partKeyBean;
 	
 	@Override
-	public void generateMediatorKey(HttpHeaders httpHeaders, AsyncResponse asyncResponse, PublicKey publicKey) {
+	public void generateMediatorKey(HttpHeaders httpHeaders, AsyncResponse asyncResponse, String publicKeyBase64String) {
 		
 		new Thread(new Runnable() {
             @Override
             public void run() {
+            	log.info("PublicKey recived: " + publicKeyBase64String);
             	String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
+            	PublicKey publicKey = null;
+				try {
+					publicKey = KeyHelper.getPublicKeyFromBase64String(publicKeyBase64String);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+            	
         		BigInteger modulus = ((RSAPublicKey)publicKey).getModulus();
         		BigInteger publicExponent = ((RSAPublicKey)publicKey).getPublicExponent();
         		
@@ -53,15 +68,13 @@ public class MediatorService implements MediatorServiceProxy  {
         		}
 
         		PartKey newPartKey = new PartKey();
-        		
         		newPartKey.setServiceKey(serviceKey);
-        		newPartKey.setPrivateExponent(Base64.getEncoder().encodeToString(finalizationKeyExponent.toByteArray()));
+        		newPartKey.setPrivateExponent(KeyHelper.getBase64StringFromBigInteger(finalizationKeyExponent));
+        		newPartKey.setPublicExponent(KeyHelper.getBase64StringFromBigInteger(publicExponent));
+        		newPartKey.setPublicModulus(KeyHelper.getBase64StringFromBigInteger(modulus));
         		
-        		newPartKey.setPublicExponent(Base64.getEncoder().encodeToString(publicExponent.toByteArray()));
-        		newPartKey.setPublicModulus(Base64.getEncoder().encodeToString(modulus.toByteArray()));
-        		
-                partKeyBean.save(newPartKey);
-                Response response = Response.ok(finalizationKeyExponent, MediaType.APPLICATION_JSON).build();
+                partKeyBean.update(newPartKey);
+                Response response = Response.ok(KeyHelper.getBase64StringFromBigInteger(finalizationKeyExponent), MediaType.APPLICATION_JSON).build();
                 asyncResponse.resume(response);
             }
         }).start();
