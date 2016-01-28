@@ -3,7 +3,6 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.ddns.falcoboss.registration.server</groupId>
 	<artifactId>registration-server</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<packaging>war</packaging>
 	<name>Registration Server</name>
 	<description>The gate to the outside world.</description>
@@ -96,4 +95,10 @@
 			</plugin>
 		</plugins>
 	</build>
+	<parent>
+		<groupId>net.ddns.falcoboss.enterprise.systems.ee</groupId>
+		<artifactId>security-systems-ee</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../SecuritySystemsEE</relativePath>
+	</parent>
 </project>
