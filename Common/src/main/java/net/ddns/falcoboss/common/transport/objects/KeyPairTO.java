@@ -1,15 +1,15 @@
-package net.ddns.falcoboss.common;
+package net.ddns.falcoboss.common.transport.objects;
 
-public class KeyPairBase64TO {
+public class KeyPairTO {
 
 	private String privateExponent;
 	private String publicExponent;
     private String modulus;
 	
-    public KeyPairBase64TO(){
+    public KeyPairTO(){
     }
     
-    public KeyPairBase64TO(String privateExponent, String publicExponent, String modulus) {
+    public KeyPairTO(String privateExponent, String publicExponent, String modulus) {
     	this.privateExponent = privateExponent;
     	this.publicExponent = publicExponent;
     	this.modulus = modulus;

@@ -13,7 +13,7 @@ import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
 
-import net.ddns.falcoboss.common.HTTPHeaderNames;
+import net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames;
  
 @Provider
 @PreMatching

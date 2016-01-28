@@ -1,4 +1,4 @@
-package net.ddns.falcoboss.common;
+package net.ddns.falcoboss.common.cryptography;
 
 import java.math.BigInteger;
 import java.security.KeyFactory;

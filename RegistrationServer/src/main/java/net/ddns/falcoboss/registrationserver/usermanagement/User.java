@@ -17,6 +17,8 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.UniqueConstraint;
 
+import net.ddns.falcoboss.common.transport.objects.UserTO;
+
 @SuppressWarnings("serial")
 @Entity
 @Table(name="USERS")
@@ -55,7 +57,7 @@ public class User implements Serializable {
          
     }
      
-    public User(UserDTO user){
+    public User(UserTO user){
          
         this.username		= user.getUsername();
         this.firstName		= user.getFirstName();

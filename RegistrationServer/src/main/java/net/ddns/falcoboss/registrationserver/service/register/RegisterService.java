@@ -30,13 +30,13 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.ddns.falcoboss.common.HTTPHeaderNames;
-import net.ddns.falcoboss.common.KeyHelper;
-import net.ddns.falcoboss.common.KeyPairBase64TO;
-import net.ddns.falcoboss.common.Message;
-import net.ddns.falcoboss.common.PartiallySignatureTO;
-import net.ddns.falcoboss.common.PublicKeyCryptography;
-import net.ddns.falcoboss.common.UsernameAndPassword;
+import net.ddns.falcoboss.common.cryptography.KeyHelper;
+import net.ddns.falcoboss.common.cryptography.PublicKeyCryptography;
+import net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames;
+import net.ddns.falcoboss.common.transport.objects.KeyPairTO;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
+import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
 import net.ddns.falcoboss.registrationserver.rest.client.MediatorRestClient;
 import net.ddns.falcoboss.registrationserver.security.AuthenticatorBean;
 import net.ddns.falcoboss.registrationserver.usermanagement.User;
@@ -50,7 +50,7 @@ public class RegisterService implements RegisterServiceProxy {
 	//private static final int _ThreadPool = 10;
 	//private ExecutorService writer = Executors.newFixedThreadPool(_ThreadPool);
 
-	private List<Message> recivedMessages = new LinkedList<Message>();
+	private List<MessageTO> recivedMessages = new LinkedList<MessageTO>();
 
 	private HashMap<String, AsyncResponse> listeners = new HashMap<String, AsyncResponse>();
 
@@ -61,7 +61,7 @@ public class RegisterService implements RegisterServiceProxy {
 	private UserBean userBean;
 
 	@Override
-	public Response login(@Context HttpHeaders httpHeaders, final UsernameAndPassword usernameAndPasswordBean) {
+	public Response login(@Context HttpHeaders httpHeaders, final UsernameAndPasswordTO usernameAndPasswordBean) {
 		String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
 		String username = usernameAndPasswordBean.getUsername();
 		String password = usernameAndPasswordBean.getPassword();
@@ -85,7 +85,7 @@ public class RegisterService implements RegisterServiceProxy {
 	}
 
 	@Override
-	public Response sendMessage(@Context HttpHeaders httpHeaders, final Message message) {
+	public Response sendMessage(@Context HttpHeaders httpHeaders, final MessageTO message) {
 		new Thread(new Runnable() {
 			@Override
 			public void run() {
@@ -107,7 +107,7 @@ public class RegisterService implements RegisterServiceProxy {
 						}
 						if (!messageSend) {
 							recivedMessages.add(message);
-							recivedMessages.sort(new Message());
+							recivedMessages.sort(new MessageTO());
 						}
 					}
 				}
@@ -123,12 +123,11 @@ public class RegisterService implements RegisterServiceProxy {
 	public void reciveMessage(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse asyncResponse) {
 
 		String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
-
 		User requestUser = userBean.findByServiceKey(serviceKey);
 		String requestUsername = requestUser.getUsername();
 		boolean messageFound = false;
 		synchronized (recivedMessages) {
-			for (Message message : recivedMessages) {
+			for (MessageTO message : recivedMessages) {
 				if (message.getRecipient().equals(requestUsername)) {
 					send(asyncResponse, message);
 					recivedMessages.remove(message);
@@ -170,66 +169,57 @@ public class RegisterService implements RegisterServiceProxy {
 		return Response.status(status).cacheControl(cc);
 	}
 
-	protected void send(AsyncResponse asyncResponse, Message message) {
-		message.setSendDate(new Date());
-		Response response = Response.ok(message, MediaType.APPLICATION_JSON).build();
-		asyncResponse.resume(response);
-	}
-
 	@Override
 	public void requestNewKey(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse asyncResponse,
-		UsernameAndPassword usernameAndPasswordBean) {
+		UsernameAndPasswordTO usernameAndPasswordBean) {
 		String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
 		String username = usernameAndPasswordBean.getUsername();
 		String password = usernameAndPasswordBean.getPassword();
-		
 		MediatorRestClient mediatorRestClient = new MediatorRestClient();
 		mediatorRestClient.setWebTarget("http://localhost:8080/MediatorServer/rest/service/"); 
 		
 		try {
-			if(authenticatorBean.isUsernameAndPasswordValid(serviceKey, username, password))
-			{
-				new Thread(new Runnable() {
-					@Override
-					public void run() {
-						try {
-							KeyPair newKeyPair = PublicKeyCryptography.createKeyPair();
-							RSAPublicKey publicKey = (RSAPublicKey) newKeyPair.getPublic();
-							PrivateKey privateKey = newKeyPair.getPrivate();
-							String publicKeyBase64String = KeyHelper.getBase64StringFromPublicKey(publicKey);
-							Future<Response> futureResponse = mediatorRestClient.requestNewFinalizationKey(serviceKey, publicKeyBase64String);
-							BigInteger mediatorPrivateExponent = futureResponse.get().readEntity(BigInteger.class);
+			authenticatorBean.isUsernameAndPasswordValid(serviceKey, username, password);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						KeyPair newKeyPair = PublicKeyCryptography.createKeyPair();
+						RSAPublicKey publicKey = (RSAPublicKey) newKeyPair.getPublic();
+						PrivateKey privateKey = newKeyPair.getPrivate();
+						String publicKeyBase64String = KeyHelper.getBase64StringFromPublicKey(publicKey);
+						
+						Future<Response> futureResponse = mediatorRestClient.requestNewFinalizationKey(serviceKey, publicKeyBase64String);
+						Response response = futureResponse.get();
+						if(response.getStatus() == 200){
+							String mediatorPrivateExponentBase64String = response.readEntity(String.class);
+							BigInteger mediatorPrivateExponent = KeyHelper.getBigIntegerFromBase64String(mediatorPrivateExponentBase64String);
 							RSAPrivateKey userPrivateKey = (RSAPrivateKey) PublicKeyCryptography.calculateUserPrivateKey(privateKey, mediatorPrivateExponent);
-							KeyPairBase64TO keyPairBase64Yo = new KeyPairBase64TO();
-							keyPairBase64Yo.setModulus(KeyHelper.getBase64StringFromBigInteger(userPrivateKey.getModulus()));
-							keyPairBase64Yo.setPrivateExponent(KeyHelper.getBase64StringFromBigInteger(userPrivateKey.getPrivateExponent()));
-							keyPairBase64Yo.setPublicExponent(KeyHelper.getBase64StringFromBigInteger(publicKey.getPublicExponent()));
-	
+							KeyPairTO keyPairTO = new KeyPairTO();
+							keyPairTO.setModulus(KeyHelper.getBase64StringFromBigInteger(userPrivateKey.getModulus()));
+							keyPairTO.setPrivateExponent(KeyHelper.getBase64StringFromBigInteger(userPrivateKey.getPrivateExponent()));
+							keyPairTO.setPublicExponent(KeyHelper.getBase64StringFromBigInteger(publicKey.getPublicExponent()));
 //							List<String> keyStringList = Arrays.asList(userPrivateKeyBase64String, userPublicKeyBase64String);
 //							GenericEntity<List<String>> genericEntity = new GenericEntity<List<String>>(keyStringList) {};
-						
-							Response response = Response.ok(keyPairBase64Yo, MediaType.APPLICATION_JSON).build();
-			                asyncResponse.resume(response);
-							
-						} catch (Exception e) {
-							e.printStackTrace();
+							Response mediatorResponse = Response.ok(keyPairTO, MediaType.APPLICATION_JSON).build();
+			                asyncResponse.resume(mediatorResponse);
 						}
-
+						else
+						{
+							asyncResponse(asyncResponse, "Mediator Unknown Error", Response.Status.INTERNAL_SERVER_ERROR);
+						}
 						
+						
+					} catch (Exception e) {
+						e.printStackTrace();
+						e.printStackTrace();
+						asyncResponse(asyncResponse, "Unknown Error", Response.Status.INTERNAL_SERVER_ERROR);
 					}
-				}).start();
-			}
+				}
+			}).start();
 		} catch (LoginException e) {
-			JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-			jsonObjBuilder.add("message", "Problem matching service key, username and password");
-			JsonObject jsonObj = jsonObjBuilder.build();
-			Response response = Response.status(Response.Status.UNAUTHORIZED).entity(jsonObj.toString()).build();
-			asyncResponse.resume(response);
-			
+			asyncResponse(asyncResponse, "Problem matching service key, username and password", Response.Status.UNAUTHORIZED);
 		}
-		
-		
-		
 	}
 
 	@Override
@@ -248,21 +238,32 @@ public class RegisterService implements RegisterServiceProxy {
 						String completeSignatureBase64String= futureResponse.get().readEntity(String.class);
 						
 						Response response = Response.ok(completeSignatureBase64String, MediaType.APPLICATION_JSON).build();
-						 asyncResponse.resume(response);
+						asyncResponse.resume(response);
 					} catch (Exception e) {
 						e.printStackTrace();
+						asyncResponse(asyncResponse, "Unknown Error", Response.Status.INTERNAL_SERVER_ERROR);
 					}
-
-					
 				}
 			}).start();
 		}
 		catch (Exception e) {
-			JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
-			jsonObjBuilder.add("message", "Unknown Error");
-			JsonObject jsonObj = jsonObjBuilder.build();
-			Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObj.toString()).build();
-			asyncResponse.resume(response);
+			e.printStackTrace();
+			asyncResponse(asyncResponse, "Unknown Error", Response.Status.INTERNAL_SERVER_ERROR);
 		}
+	}
+	
+	protected void send(AsyncResponse asyncResponse, MessageTO message) {
+		message.setSendDate(new Date());
+		Response response = Response.ok(message, MediaType.APPLICATION_JSON).build();
+		asyncResponse.resume(response);
+	}
+	
+	private void asyncResponse(AsyncResponse asyncResponse, String responseMessage, Response.Status responseStatus)
+	{
+		JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
+		jsonObjBuilder.add("message", responseMessage);
+		JsonObject jsonObj = jsonObjBuilder.build();
+		Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObj.toString()).build();
+		asyncResponse.resume(response);
 	}
 }

@@ -1,6 +1,6 @@
-package net.ddns.falcoboss.registrationserver.usermanagement;
+package net.ddns.falcoboss.common.transport.objects;
 
-public class UserDTO {
+public class UserTO {
 	 
     private String username;
     private String firstName;

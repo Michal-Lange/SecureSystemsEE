@@ -1,7 +1,6 @@
 package net.ddns.falcoboss.mediatorserver.service.mediator;
 
 import java.io.Serializable;
-import java.security.PublicKey;
 
 import javax.ejb.Local;
 import javax.ws.rs.Consumes;
@@ -14,7 +13,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
-import net.ddns.falcoboss.common.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
 
 @Local
 @Path("service")
@@ -25,12 +24,12 @@ public interface MediatorServiceProxy extends Serializable {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void generateMediatorKey(
-        @Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final String publicKeyBase64String);
+        @Context HttpHeaders httpHeaders, @Suspended AsyncResponse asyncResponse, final String publicKeyBase64String);
     
     @POST
     @Path("sign-file")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void signFile(
-    		@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final PartiallySignatureTO partiallySignatureTO); 
+    		@Context HttpHeaders httpHeaders, @Suspended AsyncResponse asyncResponse, final PartiallySignatureTO partiallySignatureTOBase64String); 
 }

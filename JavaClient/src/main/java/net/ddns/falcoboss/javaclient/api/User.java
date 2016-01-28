@@ -7,7 +7,7 @@ import java.util.Observable;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import net.ddns.falcoboss.common.Message;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
 
 @XmlRootElement
 public class User extends Observable{
@@ -17,28 +17,28 @@ public class User extends Observable{
 	private String status;
 	private Boolean updated;
 	private UserStatus userStatus;
-	private List<Message> messages;
+	private List<MessageTO> messages;
 	
-	public List<Message> getMessages() {
+	public List<MessageTO> getMessages() {
 		return messages;
 	}
 
-	public void setMessages(List<Message> messages) {
+	public void setMessages(List<MessageTO> messages) {
 		this.messages = messages;
 	}
 	
-	public void addMessage(Message message){
+	public void addMessage(MessageTO message){
 		messages.add(message);
 		setChanged();
 	    notifyObservers();
 	}
 
 	public User(){
-		messages = new LinkedList<Message>();
+		messages = new LinkedList<MessageTO>();
 	}
 	
 	public User(String username){
-		messages = new LinkedList<Message>();
+		messages = new LinkedList<MessageTO>();
 		this.username = username;
 	}
 	

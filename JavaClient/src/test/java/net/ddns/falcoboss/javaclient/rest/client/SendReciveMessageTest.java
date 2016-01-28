@@ -9,16 +9,17 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
-import net.ddns.falcoboss.common.Message;
+import net.ddns.falcoboss.common.cryptography.SHA512;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
 
 public class SendReciveMessageTest extends AbstractRestClientTest {
 	@Test
-    public void testConnection(){
-		Response response = restClient.login("username1", "password1", "f80ebc87-ad5c-4b29-9366-5359768df5a1");
+    public void testConnection() throws Exception{
+		Response response = restClient.login("username1", password1Hash, "f80ebc87-ad5c-4b29-9366-5359768df5a1");
 		Assert.assertEquals(200, response.getStatus());
         Assert.assertNotNull(restClient.getAuthToken().get("auth_token"));
         
-        Message message = new Message();
+        MessageTO message = new MessageTO();
         message.setSender("username1");
         message.setRecipient("username2");
         
@@ -36,44 +37,18 @@ public class SendReciveMessageTest extends AbstractRestClientTest {
 		response = restClient.logout();
     	Assert.assertEquals(204, response.getStatus());
     	
-    	response = restClient.login("username2", "password2", "3b91cab8-926f-49b6-ba00-920bcf934c2a");
+    	
+		response = restClient.login("username2", password2Hash, "3b91cab8-926f-49b6-ba00-920bcf934c2a");
     	Assert.assertEquals(200, response.getStatus());
         Assert.assertNotNull(restClient.getAuthToken().get("auth_token"));
         
-        
-        message = null;
-        final Future<Response> futureResponse1 = restClient.reciveMessage();
-        try {
-			message = futureResponse1.get().readEntity(Message.class);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-        System.out.println(message.getText());
-        
-        message = null;
-        final Future<Response> futureResponse2 = restClient.reciveMessage();
-        try {
-			message = futureResponse2.get().readEntity(Message.class);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-        System.out.println(message.getText());
-        
-        message = null;
-        final Future<Response> futureResponse3 = restClient.reciveMessage();
-        try {
-			message = futureResponse3.get().readEntity(Message.class);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} catch (ExecutionException e) {
-			e.printStackTrace();
-		}
-        System.out.println(message.getText());     
-        
+        for(int i=0; i<3; i++)
+        {
+        	final Future<Response> futureResponse1 = restClient.reciveMessage();
+            message = futureResponse1.get().readEntity(MessageTO.class);
+            System.out.println(message.getText());
+        }
+
         response = restClient.logout();
     	Assert.assertEquals(204, response.getStatus());
     }

@@ -3,6 +3,7 @@ package net.ddns.falcoboss.registrationserver.service.register;
 import java.io.Serializable;
 
 import javax.ejb.Local;
+import javax.ejb.Remote;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -15,9 +16,9 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.ddns.falcoboss.common.Message;
-import net.ddns.falcoboss.common.PartiallySignatureTO;
-import net.ddns.falcoboss.common.UsernameAndPassword;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
+import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
 
 @Local
 @Path("service")
@@ -28,13 +29,13 @@ public interface RegisterServiceProxy extends Serializable {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response login(
-        @Context HttpHeaders httpHeaders, final UsernameAndPassword usernameAndPasswordBean);
+        @Context HttpHeaders httpHeaders, final UsernameAndPasswordTO usernameAndPasswordBean);
     
     @POST
     @Path("send-message")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response sendMessage(@Context HttpHeaders httpHeaders, final Message message); 
+    public Response sendMessage(@Context HttpHeaders httpHeaders, final MessageTO message); 
     
     @GET
     @Path("recive-message")
@@ -50,7 +51,7 @@ public interface RegisterServiceProxy extends Serializable {
     @Path("request-new-key")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void requestNewKey(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UsernameAndPassword usernameAndPasswordBean);
+    public void requestNewKey(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UsernameAndPasswordTO usernameAndPasswordBean);
 
     @POST
     @Path("sign-file")

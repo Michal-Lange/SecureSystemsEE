@@ -1,14 +1,14 @@
-package net.ddns.falcoboss.common;
+package net.ddns.falcoboss.common.transport.objects;
 
-public class UsernameAndPassword {
+public class UsernameAndPasswordTO {
     
 	private String username;
     private String password;
     
-	public UsernameAndPassword() {
+	public UsernameAndPasswordTO() {
 	}
 	
-	public UsernameAndPassword(String username, String password)
+	public UsernameAndPasswordTO(String username, String password)
 	{
 		this.setUsername(username);
 		this.setPassword(password);

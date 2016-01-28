@@ -16,11 +16,11 @@ import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
-import net.ddns.falcoboss.common.HTTPHeaderNames;
-import net.ddns.falcoboss.common.KeyHelper;
-import net.ddns.falcoboss.common.Message;
-import net.ddns.falcoboss.common.PartiallySignatureTO;
-import net.ddns.falcoboss.common.UsernameAndPassword;
+import net.ddns.falcoboss.common.cryptography.KeyHelper;
+import net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
+import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
 
 public class RestClient {
 
@@ -49,7 +49,7 @@ public class RestClient {
 	
 
 	public Response login(String username, String password){
-		UsernameAndPassword usernameAndPasswordBean = new UsernameAndPassword(username, password);
+		UsernameAndPasswordTO usernameAndPasswordBean = new UsernameAndPasswordTO(username, password);
 		Response response =
 				this.webTarget.path("login/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
@@ -63,7 +63,7 @@ public class RestClient {
 	
 	public Response login(String login, String password, String serviceKey){
 		this.serviceKey = serviceKey;
-		UsernameAndPassword usernameAndPasswordBean = new UsernameAndPassword(login, password);
+		UsernameAndPasswordTO usernameAndPasswordBean = new UsernameAndPasswordTO(login, password);
 		Response response = 
 				this.webTarget.path("login/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
@@ -97,7 +97,7 @@ public class RestClient {
 	    return response;
 	}
 	
-	public Response sendMessage(Message message){
+	public Response sendMessage(MessageTO message){
 		Response response =
 				this.webTarget.path("send-message/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
@@ -130,7 +130,7 @@ public class RestClient {
 	}
 	
 	final public Future<Response> requestNewKey(String username, String password) {
-		UsernameAndPassword usernameAndPasswordBean = new UsernameAndPassword(username, password);
+		UsernameAndPasswordTO usernameAndPasswordBean = new UsernameAndPasswordTO(username, password);
 		final Future<Response> futureResponse =
 				this.webTarget.path("request-new-key/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).

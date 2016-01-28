@@ -15,8 +15,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import net.ddns.falcoboss.common.KeyHelper;
-import net.ddns.falcoboss.common.PublicKeyCryptography;
+import net.ddns.falcoboss.common.cryptography.KeyHelper;
+import net.ddns.falcoboss.common.cryptography.PublicKeyCryptography;
 
 
 public class PartKeyGeneratorTest {

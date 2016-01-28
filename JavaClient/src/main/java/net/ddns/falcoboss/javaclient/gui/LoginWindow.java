@@ -16,6 +16,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.ws.rs.core.Response;
 
+import net.ddns.falcoboss.common.cryptography.SHA512;
 import net.ddns.falcoboss.javaclient.api.Facade;
 
 @SuppressWarnings("serial")
@@ -112,7 +113,7 @@ public class LoginWindow extends JFrame {
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					Response response = facade.login(textFieldLogin.getText(), textFieldPassword.getText());
+					Response response = facade.login(textFieldLogin.getText(), SHA512.hashText(textFieldPassword.getText()));
 					if (response.getStatus() == 200) {
 						MainWindow mainWindow = new MainWindow();
 						mainWindow.setFacade(facade);

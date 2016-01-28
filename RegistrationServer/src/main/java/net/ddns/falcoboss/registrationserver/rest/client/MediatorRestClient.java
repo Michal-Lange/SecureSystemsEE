@@ -11,8 +11,8 @@ import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import net.ddns.falcoboss.common.HTTPHeaderNames;
-import net.ddns.falcoboss.common.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames;
+import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
 
 public class MediatorRestClient {
 	Client client;

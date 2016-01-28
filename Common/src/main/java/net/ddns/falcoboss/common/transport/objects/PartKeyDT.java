@@ -1,6 +1,6 @@
-package net.ddns.falcoboss.mediatorserver.partkeys;
+package net.ddns.falcoboss.common.transport.objects;
 
-public class PartKeyDTO {
+public class PartKeyDT {
 	
 	private String serviceKey;
     private String privateExponent;

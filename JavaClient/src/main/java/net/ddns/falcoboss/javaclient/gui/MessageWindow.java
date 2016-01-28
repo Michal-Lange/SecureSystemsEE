@@ -15,7 +15,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.ws.rs.core.Response;
 
-import net.ddns.falcoboss.common.Message;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
 import net.ddns.falcoboss.javaclient.api.Facade;
 import net.ddns.falcoboss.javaclient.api.User;
 import java.awt.event.WindowAdapter;
@@ -185,7 +185,7 @@ public class MessageWindow extends JFrame implements Observer{
 	
 	public void updateConversation(){
 		String conversation = "";
-		for(Message message: user.getMessages())
+		for(MessageTO message: user.getMessages())
 		{
 			conversation += message.getSender() + ":\n" + message.getText() +"\n\n";
 		}

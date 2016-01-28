@@ -11,6 +11,9 @@ import java.util.Base64;
 import org.junit.Assert;
 import org.junit.Test;
 
+import net.ddns.falcoboss.common.cryptography.KeyHelper;
+import net.ddns.falcoboss.common.cryptography.PublicKeyCryptography;
+
 public class PublicKeyCryptographyTest {
 
 	@Test
@@ -31,8 +34,7 @@ public class PublicKeyCryptographyTest {
 
 		Assert.assertEquals(keyPair.getPrivate(), privateKey);
 		Assert.assertEquals(keyPair.getPublic(), publicKey);
-		
-		
+
 		BigInteger publicModulus = ((RSAPublicKey)publicKey).getModulus();
 		BigInteger publicExponent = ((RSAPublicKey)publicKey).getPublicExponent();
 		

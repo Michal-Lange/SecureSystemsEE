@@ -1,4 +1,4 @@
-package net.ddns.falcoboss.common;
+package net.ddns.falcoboss.common.transport.objects;
 
 public class PartiallySignatureTO {
 

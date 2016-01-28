@@ -7,16 +7,17 @@ import java.security.interfaces.RSAPublicKey;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Observable;
+import java.util.Queue;
 import java.util.concurrent.Future;
 
-import javax.swing.SwingUtilities;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
-import net.ddns.falcoboss.common.KeyHelper;
-import net.ddns.falcoboss.common.KeyPairBase64TO;
-import net.ddns.falcoboss.common.Message;
-import net.ddns.falcoboss.common.PublicKeyCryptography;
+import net.ddns.falcoboss.common.cryptography.KeyHelper;
+import net.ddns.falcoboss.common.cryptography.PublicKeyCryptography;
+import net.ddns.falcoboss.common.cryptography.SHA512;
+import net.ddns.falcoboss.common.transport.objects.KeyPairTO;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
 import net.ddns.falcoboss.javaclient.rest.client.RestClient;
 
 public class Facade extends Observable {
@@ -37,6 +38,24 @@ public class Facade extends Observable {
 	
 	private String lastSignature;
 	
+	private Queue<Response> errorResponse = new LinkedList<Response>();
+	
+	public String getLastSignature() {
+		return lastSignature;
+	}
+
+	public void setLastSignature(String lastSignature) {
+		this.lastSignature = lastSignature;
+	}
+	
+	public Queue<Response> getErrorResponse() {
+		return errorResponse;
+	}
+
+	public void setErrorResponse(Queue<Response> errorResponse) {
+		this.errorResponse = errorResponse;
+	}
+
 	public Facade() {
 		propertyReader = new PropertyReader();
 		restClient = new RestClient();
@@ -48,7 +67,7 @@ public class Facade extends Observable {
 						Future<Response> reciveMessage = reciveMessage();
 						Response response = reciveMessage.get();
 						if (response.getStatus() == 200){
-							Message message = response.readEntity(Message.class);
+							MessageTO message = response.readEntity(MessageTO.class);
 							String sender = message.getSender();
 							User senderUser = new User(sender);
 							if (!userList.contains(senderUser)) {
@@ -63,15 +82,18 @@ public class Facade extends Observable {
 									user.setUpdated(true);
 									break;
 								}
-								
 							}
-							update();
 						}
+						else{
+							synchronized(errorResponse){
+								errorResponse.add(response);
+							}
+						}
+						update();
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-
 			}
 		});
 	}
@@ -91,12 +113,12 @@ public class Facade extends Observable {
 		return response;
 	}
 
-	private Response sendMessage(Message message) {
+	private Response sendMessage(MessageTO message) {
 		return restClient.sendMessage(message);
 	}
 
 	public Response sendMessage(String recipient, String text) {
-		Message message = new Message();
+		MessageTO message = new MessageTO();
 		message.setSender(myUsername);
 		message.setRecipient(recipient);
 		message.setText(text);
@@ -112,8 +134,13 @@ public class Facade extends Observable {
 				}
 				break;
 			}
-			update();
 		}
+		else{
+			synchronized(errorResponse){
+				errorResponse.add(response);
+			}
+		}
+		update();
 		return response;
 	}
 
@@ -124,30 +151,37 @@ public class Facade extends Observable {
 	public void startReciveMessages() {
 		reciveMessagesThread.start();
 	}
-	
+
 	public void requestNewKey(String username, String password){
 		new Thread(new Runnable() {
 			public void run() {
 				try {
-					Future<Response> futureResponse = restClient.requestNewKey(username, password);
+					Future<Response> futureResponse = restClient.requestNewKey(username, SHA512.hashText(password));
 					Response response = futureResponse.get();
 					if (response.getStatus() == 200){
-						KeyPairBase64TO keyPairBase64TO = response.readEntity(KeyPairBase64TO.class);
+						KeyPairTO keyPairBase64TO = response.readEntity(KeyPairTO.class);
 						String modulusBase64 = keyPairBase64TO.getModulus();
 						String privateExponentBase64 = keyPairBase64TO.getPrivateExponent();
 						String publicExponentBase64 = keyPairBase64TO.getPublicExponent();
-						privateKey =  (RSAPrivateKey) KeyHelper.getPrivateKeyFromBase64ExponentAndModulus(privateExponentBase64, modulusBase64);
+						privateKey = (RSAPrivateKey) KeyHelper.getPrivateKeyFromBase64ExponentAndModulus(privateExponentBase64, modulusBase64);
 						publicKey = (RSAPublicKey) KeyHelper.getPublicKeyFromBase64ExponentAndModulus(publicExponentBase64, modulusBase64);
-						update();
 					}
+					else
+					{	
+						synchronized(errorResponse){
+							errorResponse.add(response);
+						}
+					}
+					update();
 				}
 				catch(Exception e){
-
+					e.printStackTrace();
 				}
 			}
 		}).start();
 	}
-	
+
+
 	public void signFileHash(String fileHashHexString) {
 		new Thread(new Runnable() {
 			public void run() {
@@ -160,13 +194,18 @@ public class Facade extends Observable {
 					Response response = futureResponse.get();
 					if (response.getStatus() == 200){
 						String completeSignatureBase64String = response.readEntity(String.class);
-						lastSignature = completeSignatureBase64String;
-						update();
+						setLastSignature(completeSignatureBase64String);
 					}
-					
+					else
+					{	
+						synchronized(errorResponse){
+							errorResponse.add(response);
+						}
+					}
+					update();
 				}
 				catch(Exception e){
-
+					e.printStackTrace();
 				}
 			}
 		}).start();

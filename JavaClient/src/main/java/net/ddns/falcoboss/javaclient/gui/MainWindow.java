@@ -47,6 +47,7 @@ import javax.xml.bind.JAXBException;
 
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 
+import net.ddns.falcoboss.common.cryptography.SHA512;
 import net.ddns.falcoboss.javaclient.api.Facade;
 import net.ddns.falcoboss.javaclient.api.User;
 import net.ddns.falcoboss.javaclient.api.UserStatus;
@@ -369,11 +370,11 @@ public class MainWindow extends JFrame implements Observer{
 		textFieldSignFilePath.setEditable(false);
 		textFieldSignFilePath.setColumns(10);
 		
-		JButton btnLoadFile_1 = new JButton("Load File");
-		btnLoadFile_1.addActionListener(new ActionListener() {
+		JButton btnLoadFileToSign = new JButton("Load File");
+		btnLoadFileToSign.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser fileChooser = new JFileChooser();
-				fileChooser.setDialogTitle("Load File for sign");
+				fileChooser.setDialogTitle("Load file for sign");
 				int result = fileChooser.showOpenDialog(mainWindow);
 				if (result == JFileChooser.APPROVE_OPTION) {
 				    File selectedFile = fileChooser.getSelectedFile();
@@ -382,14 +383,13 @@ public class MainWindow extends JFrame implements Observer{
 						public void run() {
 							try {
 								byte[] selectedFileAllBytes = Files.readAllBytes(Paths.get(absolutePath));
-								byte[] selectedFileHash = MessageDigest.getInstance("SHA-512").digest(selectedFileAllBytes);
-								BigInteger selectedFileHashBigInteger = new BigInteger(1, selectedFileHash);
+								String fileHash = SHA512.convertByteToHex(selectedFileAllBytes);
 								SwingUtilities.invokeLater(new Runnable() {
 									public void run() {
-										textAreaSignFileHash.setText(selectedFileHashBigInteger.toString(16));
+										textAreaSignFileHash.setText(fileHash);
 									}
 								});
-							} catch (NoSuchAlgorithmException | IOException e1) {
+							} catch (Exception e1) {
 								JOptionPane.showMessageDialog(mainWindow,
 									     e1.getMessage(),
 									    "File Load Error",
@@ -429,7 +429,7 @@ public class MainWindow extends JFrame implements Observer{
 							.addGroup(gl_panelSign.createParallelGroup(Alignment.LEADING)
 								.addComponent(lblSignFile)
 								.addGroup(gl_panelSign.createSequentialGroup()
-									.addComponent(btnLoadFile_1, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
+									.addComponent(btnLoadFileToSign, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
 									.addComponent(textFieldSignFilePath, GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)))
 							.addContainerGap())
@@ -447,7 +447,7 @@ public class MainWindow extends JFrame implements Observer{
 					.addComponent(lblSignFile)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panelSign.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnLoadFile_1)
+						.addComponent(btnLoadFileToSign)
 						.addComponent(textFieldSignFilePath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
 					.addComponent(textAreaSignFileHash, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
@@ -811,7 +811,11 @@ public class MainWindow extends JFrame implements Observer{
 			try {
 				facade.addContact(newUser);
 			} catch (JAXBException e) {
-				e.printStackTrace();
+				JOptionPane.showMessageDialog(mainWindow,
+					    e.getMessage(),
+					    "Error",
+					    JOptionPane.WARNING_MESSAGE);
+				btnRequestNewKeyPair.setEnabled(true);
 			}
 			updateUserList();
 			JOptionPane.showMessageDialog(mainWindow,
@@ -843,12 +847,15 @@ public class MainWindow extends JFrame implements Observer{
 							}
 						});
 					} catch(Exception e){
+						JOptionPane.showMessageDialog(mainWindow,
+							    e.getMessage(),
+							    "Error",
+							    JOptionPane.WARNING_MESSAGE);
 						btnRequestNewKeyPair.setEnabled(true);
 					}
 				}
 			}).start();
 		}
-		
 	}
 	
 	public void noRSAKeyMessageWindow()
@@ -861,9 +868,41 @@ public class MainWindow extends JFrame implements Observer{
 
 	@Override
 	public void update(Observable o, Object arg) {
+		checkErrors();
 		updateUserList();
 		udpateKeyInfo();
 	}
+	private void checkErrors() {
+		synchronized(facade.getErrorResponse())
+		{
+			while(!facade.getErrorResponse().isEmpty())
+			{
+				int responseStatus = facade.getErrorResponse().poll().getStatus();
+				if(responseStatus == 401)
+				{
+					JOptionPane.showMessageDialog(mainWindow,
+						    "Wrong username or password",
+						    "Login Error",
+						    JOptionPane.WARNING_MESSAGE);
+				}
+				if(responseStatus == 500)
+				{
+					JOptionPane.showMessageDialog(mainWindow,
+						    "Registration Server Error",
+						    "Server Error",
+						    JOptionPane.WARNING_MESSAGE);
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(mainWindow,
+						    "Unknown Response Status Code: " + Integer.toString(responseStatus),
+						    "Unknown Response",
+						    JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		}
+	}
+
 	public JTextField getTextFieldSignFilePath() {
 		return textFieldSignFilePath;
 	}

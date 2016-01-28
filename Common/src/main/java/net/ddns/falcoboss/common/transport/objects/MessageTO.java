@@ -1,9 +1,9 @@
-package net.ddns.falcoboss.common;
+package net.ddns.falcoboss.common.transport.objects;
 
 import java.util.Comparator;
 import java.util.Date;
 
-public class Message implements Comparator<Object> {
+public class MessageTO implements Comparator<Object> {
 	private String text;
 	private Date sendDate;
 	private Date receiptDate;
@@ -52,8 +52,8 @@ public class Message implements Comparator<Object> {
 	
 	@Override
 	public int compare(Object o1, Object o2) {
-	     Date d1 = ((Message) o1).getSendDate();
-	     Date d2 = ((Message) o2).getSendDate();
+	     Date d1 = ((MessageTO) o1).getSendDate();
+	     Date d2 = ((MessageTO) o2).getSendDate();
 	       if (d1.after(d2)) {
 	           return 1;
 	       } else if (d1.before(d2)){
@@ -84,10 +84,10 @@ public class Message implements Comparator<Object> {
 		if (obj == null) {
 			return false;
 		}
-		if (!(obj instanceof Message)) {
+		if (!(obj instanceof MessageTO)) {
 			return false;
 		}
-		Message other = (Message) obj;
+		MessageTO other = (MessageTO) obj;
 		if (receiptDate == null) {
 			if (other.receiptDate != null) {
 				return false;
