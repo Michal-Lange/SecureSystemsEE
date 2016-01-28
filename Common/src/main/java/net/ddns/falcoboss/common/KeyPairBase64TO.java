@@ -31,12 +31,12 @@ public class KeyPairBase64TO {
 		this.publicExponent = publicExponent;
 	}
 	
-	public String getMonulus() {
+	public String getModulus() {
 		return modulus;
 	}
 	
-	public void setMonulus(String monulus) {
-		this.modulus = monulus;
+	public void setModulus(String modulus) {
+		this.modulus = modulus;
 	}
 	
     

@@ -14,6 +14,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
+import net.ddns.falcoboss.common.PartiallySignatureTO;
+
 @Local
 @Path("service")
 public interface MediatorServiceProxy extends Serializable {
@@ -29,5 +31,6 @@ public interface MediatorServiceProxy extends Serializable {
     @Path("sign-file")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public void signFile(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final String file); 
+    public void signFile(
+    		@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final PartiallySignatureTO partiallySignatureTO); 
 }

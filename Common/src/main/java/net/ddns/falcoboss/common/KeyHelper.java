@@ -45,7 +45,6 @@ public class KeyHelper {
 		return publicKey;
 	}
 	
-	
 	public static BigInteger getBigIntegerFromBase64String(String base64String) {
 		byte[] bytes = Base64.getDecoder().decode(base64String);
 		return new BigInteger(bytes);

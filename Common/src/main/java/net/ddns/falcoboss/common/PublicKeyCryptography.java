@@ -44,4 +44,11 @@ public class PublicKeyCryptography {
 		
 		return userPrivateKey;
 	}
+	
+	public static BigInteger signFileHash(BigInteger fileHash, PrivateKey privateKey)
+	{
+		BigInteger privateExponent = ((RSAPrivateKey) privateKey).getPrivateExponent();
+		BigInteger modulus = ((RSAPrivateKey) privateKey).getModulus();
+		return fileHash.modPow(privateExponent, modulus);
+	}
 }

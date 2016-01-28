@@ -1,5 +1,6 @@
 package net.ddns.falcoboss.javaclient.rest.client;
 
+import java.math.BigInteger;
 import java.util.concurrent.Future;
 
 import javax.net.ssl.HostnameVerifier;
@@ -16,7 +17,9 @@ import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 
 import net.ddns.falcoboss.common.HTTPHeaderNames;
+import net.ddns.falcoboss.common.KeyHelper;
 import net.ddns.falcoboss.common.Message;
+import net.ddns.falcoboss.common.PartiallySignatureTO;
 import net.ddns.falcoboss.common.UsernameAndPassword;
 
 public class RestClient {
@@ -149,6 +152,33 @@ public class RestClient {
 			    });
 		return futureResponse;
 	}
+	
+	final public Future<Response> signFile(String partialySignedHash, String fileHash) {
+		PartiallySignatureTO partiallySignatureTO = new PartiallySignatureTO();
+		partiallySignatureTO.setFileHash(fileHash);
+		partiallySignatureTO.setPatiallySignedFileHash(partialySignedHash);
+		final Future<Response> futureResponse =
+				this.webTarget.path("sign-file/").request().
+				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
+				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
+				accept(MediaType.APPLICATION_JSON).
+				async()
+				.post(Entity.entity(partiallySignatureTO, MediaType.APPLICATION_JSON),
+				new InvocationCallback<Response>()
+				{
+					@Override
+			        public void completed(Response response) {
+						//Message message = response.readEntity(Message.class);
+						System.out.println("InvocationCallback completed: signFile method.");
+			        }
+					@Override
+			        public void failed(Throwable throwable) {
+						System.err.println("FAILURE!: " + throwable.getLocalizedMessage());
+			        }
+			    });
+		return futureResponse;
+		
+	}
 
 	public JSONObject getAuthToken() {
 		return this.authToken;
@@ -173,5 +203,7 @@ public class RestClient {
 	public void setWebTarget(String webTarget) {
 		this.webTarget = this.client.target(webTarget);
 	}
+
+	
 	
 }

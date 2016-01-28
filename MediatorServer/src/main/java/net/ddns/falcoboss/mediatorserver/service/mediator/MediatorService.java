@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Base64;
@@ -18,6 +19,8 @@ import javax.ws.rs.core.Response;
 
 import net.ddns.falcoboss.common.HTTPHeaderNames;
 import net.ddns.falcoboss.common.KeyHelper;
+import net.ddns.falcoboss.common.PartiallySignatureTO;
+import net.ddns.falcoboss.common.PublicKeyCryptography;
 import net.ddns.falcoboss.mediatorserver.partkeys.PartKey;
 import net.ddns.falcoboss.mediatorserver.partkeys.PartKeyBean;
 import net.ddns.falcoboss.mediatorserver.service.signature.PartKeyGenerator;
@@ -40,7 +43,6 @@ public class MediatorService implements MediatorServiceProxy  {
 	
 	@Override
 	public void generateMediatorKey(HttpHeaders httpHeaders, AsyncResponse asyncResponse, String publicKeyBase64String) {
-		
 		new Thread(new Runnable() {
             @Override
             public void run() {
@@ -81,8 +83,37 @@ public class MediatorService implements MediatorServiceProxy  {
 	}
 
 	@Override
-	public void signFile(HttpHeaders httpHeaders, AsyncResponse async, String file) {
+	public void signFile(HttpHeaders httpHeaders, AsyncResponse asyncResponse, PartiallySignatureTO partiallySignatureTO) {
+		
+		new Thread(new Runnable() {
+            @Override
+            public void run() {
+            	String serviceKey = httpHeaders.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
+            	log.info("Partially Signature recived from: " + serviceKey);
+            	
+            	PartKey mediatorPartKey = partKeyBean.find(serviceKey);
+            	RSAPrivateKey mediatorPrivateKey;
+				try {
+					mediatorPrivateKey = (RSAPrivateKey) KeyHelper.getPrivateKeyFromBase64ExponentAndModulus(mediatorPartKey.getPrivateExponent(), mediatorPartKey.getPublicModulus());
+					BigInteger fileHash = KeyHelper.getBigIntegerFromBase64String(partiallySignatureTO.getFileHash());
+	            	BigInteger mediatorSignedHash = PublicKeyCryptography.signFileHash(fileHash, mediatorPrivateKey);
 
+	            	BigInteger userSignedHash = KeyHelper.getBigIntegerFromBase64String(partiallySignatureTO.getPatiallySignedFileHash());
+
+	            	BigInteger completeSignature = (userSignedHash.multiply(mediatorSignedHash)).mod(mediatorPrivateKey.getModulus());
+	            	
+	            	String completeSignatureBase64String = KeyHelper.getBase64StringFromBigInteger(completeSignature);
+	                
+	            	Response response = Response.ok(completeSignatureBase64String, MediaType.APPLICATION_JSON).build();
+	                asyncResponse.resume(response);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+            	
+            	
+            }
+        }).start();
 	}
 
 } 

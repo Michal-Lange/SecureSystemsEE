@@ -12,6 +12,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import net.ddns.falcoboss.common.HTTPHeaderNames;
+import net.ddns.falcoboss.common.PartiallySignatureTO;
 
 public class MediatorRestClient {
 	Client client;
@@ -47,6 +48,28 @@ public class MediatorRestClient {
 		return futureResponse;
 	}
 	
+	public Future<Response> signFile(String serviceKey, PartiallySignatureTO partiallySignatureTO) {
+		final Future<Response> futureResponse =
+				this.webTarget.path("sign-file/").request().
+				header(HTTPHeaderNames.SERVICE_KEY, serviceKey).
+				accept(MediaType.APPLICATION_JSON).
+				async()
+				.post(Entity.entity(partiallySignatureTO, MediaType.APPLICATION_JSON),
+				new InvocationCallback<Response>()
+				{
+					@Override
+			        public void completed(Response response) {
+						//Message message = response.readEntity(Message.class);
+						System.out.println("InvocationCallback completed: requestNewKey method.");
+			        }
+					@Override
+			        public void failed(Throwable throwable) {
+						System.err.println("FAILURE!: " + throwable.getLocalizedMessage());
+			        }
+			    });
+		return futureResponse;
+	}
+	
 	public WebTarget getWebTarget() {
 		return webTarget;
 	}
@@ -54,4 +77,6 @@ public class MediatorRestClient {
 	public void setWebTarget(String webTarget) {
 		this.webTarget = this.client.target(webTarget);
 	}
+
+	
 }

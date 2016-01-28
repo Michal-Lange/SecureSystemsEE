@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import net.ddns.falcoboss.common.Message;
+import net.ddns.falcoboss.common.PartiallySignatureTO;
 import net.ddns.falcoboss.common.UsernameAndPassword;
 
 @Local
@@ -50,4 +51,10 @@ public interface RegisterServiceProxy extends Serializable {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void requestNewKey(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UsernameAndPassword usernameAndPasswordBean);
+
+    @POST
+    @Path("sign-file")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void signFile(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final PartiallySignatureTO partiallySignatureTO);
 }
