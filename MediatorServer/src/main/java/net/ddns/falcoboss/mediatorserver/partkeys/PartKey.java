@@ -10,7 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 
-import net.ddns.falcoboss.common.transport.objects.PartKeyDT;
+import net.ddns.falcoboss.common.transport.objects.PartKeyTO;
 
 @SuppressWarnings("serial")
 @Entity
@@ -37,7 +37,7 @@ public class PartKey implements Serializable{
 	public PartKey(){
 	}
 	
-	public PartKey(PartKeyDT partKey){
+	public PartKey(PartKeyTO partKey){
 		
 		this.serviceKey = partKey.getServiceKey();
 		this.privateExponent = partKey.getPrivateExponent();

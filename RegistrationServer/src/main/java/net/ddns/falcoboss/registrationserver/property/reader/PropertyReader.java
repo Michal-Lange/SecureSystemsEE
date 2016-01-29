@@ -1,39 +1,26 @@
-package net.ddns.falcoboss.javaclient.api;
+package net.ddns.falcoboss.registrationserver.property.reader;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class PropertyReader {
 		private String serviceKey;
 		private String serviceUrl;
 		FileInputStream fileInputStream;
+		InputStream inputStream;
 		
 		public PropertyReader()
 		{
-			
-		}
-	 
-		public void readPropertyValues() throws IOException {
-	 
-			try {
-				Properties prop = new Properties();
-				String propFileName = "config.properties";
-				fileInputStream = new FileInputStream(propFileName);
-				if (fileInputStream != null) {
-					prop.load(fileInputStream);
-				} else {
-					throw new FileNotFoundException("property file '" + propFileName + "' not found in the classpath");
-				}
-				setServiceKey(prop.getProperty("service_key"));
-				setServiceUrl(prop.getProperty("service_url"));
 
-			} catch (Exception e) {
-				System.out.println("Exception: " + e);
-			} finally {
-				fileInputStream.close();
-			}
+		}
+		
+		public void readPropertyValues() throws IOException {
+			//Dummy property
+				setServiceKey("xxx");
+				setServiceUrl("http://localhost:8080/mediator-server/rest/service/");
 		}
 
 		public String getServiceKey() {

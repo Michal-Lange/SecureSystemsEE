@@ -1,6 +1,6 @@
 package net.ddns.falcoboss.common.transport.objects;
 
-public class PartKeyDT {
+public class PartKeyTO {
 	
 	private String serviceKey;
     private String privateExponent;

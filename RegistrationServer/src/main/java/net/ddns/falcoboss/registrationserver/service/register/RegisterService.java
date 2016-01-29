@@ -4,10 +4,8 @@ import java.math.BigInteger;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -25,7 +23,6 @@ import javax.ws.rs.container.AsyncResponse;
 import javax.ws.rs.container.Suspended;
 import javax.ws.rs.core.CacheControl;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.GenericEntity;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -37,6 +34,7 @@ import net.ddns.falcoboss.common.transport.objects.KeyPairTO;
 import net.ddns.falcoboss.common.transport.objects.MessageTO;
 import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
 import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
+import net.ddns.falcoboss.registrationserver.property.reader.PropertyReader;
 import net.ddns.falcoboss.registrationserver.rest.client.MediatorRestClient;
 import net.ddns.falcoboss.registrationserver.security.AuthenticatorBean;
 import net.ddns.falcoboss.registrationserver.usermanagement.User;
@@ -54,11 +52,21 @@ public class RegisterService implements RegisterServiceProxy {
 
 	private HashMap<String, AsyncResponse> listeners = new HashMap<String, AsyncResponse>();
 
+	private PropertyReader propertyReader;
+	
 	@EJB
 	private AuthenticatorBean authenticatorBean;
 
 	@EJB
 	private UserBean userBean;
+
+	public PropertyReader getPropertyReader() {
+		return propertyReader;
+	}
+
+	public void setPropertyReader(PropertyReader propertyReader) {
+		this.propertyReader = propertyReader;
+	}
 
 	@Override
 	public Response login(@Context HttpHeaders httpHeaders, final UsernameAndPasswordTO usernameAndPasswordBean) {
@@ -176,7 +184,6 @@ public class RegisterService implements RegisterServiceProxy {
 		String username = usernameAndPasswordBean.getUsername();
 		String password = usernameAndPasswordBean.getPassword();
 		MediatorRestClient mediatorRestClient = new MediatorRestClient();
-		mediatorRestClient.setWebTarget("http://localhost:8080/MediatorServer/rest/service/"); 
 		
 		try {
 			authenticatorBean.isUsernameAndPasswordValid(serviceKey, username, password);
@@ -184,6 +191,9 @@ public class RegisterService implements RegisterServiceProxy {
 				@Override
 				public void run() {
 					try {
+						propertyReader = new PropertyReader();
+						getPropertyReader().readPropertyValues();
+						mediatorRestClient.setWebTarget(getPropertyReader().getServiceUrl()); 
 						KeyPair newKeyPair = PublicKeyCryptography.createKeyPair();
 						RSAPublicKey publicKey = (RSAPublicKey) newKeyPair.getPublic();
 						PrivateKey privateKey = newKeyPair.getPrivate();

@@ -13,6 +13,7 @@ import java.util.concurrent.Future;
 import javax.ws.rs.core.Response;
 import javax.xml.bind.JAXBException;
 
+import net.ddns.falcoboss.common.PropertyReader;
 import net.ddns.falcoboss.common.cryptography.KeyHelper;
 import net.ddns.falcoboss.common.cryptography.PublicKeyCryptography;
 import net.ddns.falcoboss.common.cryptography.SHA512;
@@ -61,6 +62,7 @@ public class Facade extends Observable {
 		restClient = new RestClient();
 		userList = new LinkedList<User>();
 		reciveMessagesThread = new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					while (true) {
@@ -154,6 +156,7 @@ public class Facade extends Observable {
 
 	public void requestNewKey(String username, String password){
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					Future<Response> futureResponse = restClient.requestNewKey(username, SHA512.hashText(password));
@@ -184,6 +187,7 @@ public class Facade extends Observable {
 
 	public void signFileHash(String fileHashHexString) {
 		new Thread(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					BigInteger fileHash = new BigInteger(fileHashHexString, 16);

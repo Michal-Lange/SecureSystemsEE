@@ -838,12 +838,13 @@ public class MainWindow extends JFrame implements Observer{
 		{
 			btnRequestNewKeyPair.setEnabled(false);
 			new Thread(new Runnable() {
+				@Override
 				public void run() {
 					try {
 						facade.requestNewKey(textFieldKeyUsername.getText(), textFieldKeyPassword.getText());
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								btnRequestNewKeyPair.setEnabled(false);
+								btnRequestNewKeyPair.setEnabled(true);
 							}
 						});
 					} catch(Exception e){
