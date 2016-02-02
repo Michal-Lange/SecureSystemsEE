@@ -1,12 +1,14 @@
-package net.ddns.falcoboss.javaclient.rest.client;
+package net.ddns.falcoboss.integration.test.messanger;
 
 import org.junit.Before;
 
 import net.ddns.falcoboss.common.cryptography.SHA512;
+import net.ddns.falcoboss.javaclient.rest.client.RestClient;
 
 public abstract class AbstractRestClientTest {
 	RestClient restClient;
 	RestClient restClient2;
+	RestClient restClient3;
 	
 	String password1Hash;
 	String password2Hash;
@@ -23,5 +25,9 @@ public abstract class AbstractRestClientTest {
   		restClient2 = new RestClient();
   		restClient2.initClient();
   		restClient2.setWebTarget("http://localhost:8080/registration-server/rest/service/");
+  		
+  		restClient3 = new RestClient();
+  		restClient3.initClient();
+  		restClient3.setWebTarget("https://localhost:8181/registration-server/rest/service/");
     }
 }

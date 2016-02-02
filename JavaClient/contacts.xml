@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<users>
+    <user fistName="First1" lastName="Last1" username="username1">
+        <updated>false</updated>
+        <userStatus>NOTAVAILABLE</userStatus>
+    </user>
+    <user fistName="First2" lastName="Last2" username="username2">
+        <updated>false</updated>
+        <userStatus>NOTAVAILABLE</userStatus>
+    </user>
+    <user fistName="First3" lastName="Last3" username="username3">
+        <updated>false</updated>
+        <userStatus>NOTAVAILABLE</userStatus>
+    </user>
+</users>

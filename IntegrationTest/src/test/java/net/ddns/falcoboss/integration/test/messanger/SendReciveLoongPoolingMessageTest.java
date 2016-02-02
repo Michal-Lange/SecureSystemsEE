@@ -1,4 +1,4 @@
-package net.ddns.falcoboss.javaclient.rest.client;
+package net.ddns.falcoboss.integration.test.messanger;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -36,7 +36,7 @@ public class SendReciveLoongPoolingMessageTest extends AbstractRestClientTest {
         response = restClient.sendMessage(message);
         Assert.assertEquals(200, response.getStatus());
        	messageRecived = futureResponse1.get().readEntity(MessageTO.class);
-
+       	Assert.assertEquals("Test async message 1!", messageRecived.getText());
         System.out.println(messageRecived.getText());
         
         response = restClient.logout();

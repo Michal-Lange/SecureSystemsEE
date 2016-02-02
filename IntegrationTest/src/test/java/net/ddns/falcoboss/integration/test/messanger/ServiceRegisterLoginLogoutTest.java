@@ -1,4 +1,4 @@
-package net.ddns.falcoboss.javaclient.rest.client;
+package net.ddns.falcoboss.integration.test.messanger;
 
 
 import javax.ws.rs.client.Entity;
@@ -22,7 +22,7 @@ public class ServiceRegisterLoginLogoutTest extends AbstractConnectionTest{
     	String passwordHash = SHA512.hashText("password1");
     	UsernameAndPasswordTO usernameAndPasswordBean = new UsernameAndPasswordTO("username1",passwordHash);	
     	Response response = webTarget.path("login/").request().header(HTTPHeaderNames.SERVICE_KEY, serviceKey).
-    			accept(MediaType.APPLICATION_JSON).post(Entity.entity(usernameAndPasswordBean, MediaType.APPLICATION_JSON));
+    	accept(MediaType.APPLICATION_JSON_TYPE).post(Entity.entity(usernameAndPasswordBean, MediaType.APPLICATION_JSON_TYPE));
         Assert.assertEquals(200, response.getStatus());
         authToken = new JSONObject(response.readEntity(String.class));
         Assert.assertNotNull(authToken.get("auth_token"));

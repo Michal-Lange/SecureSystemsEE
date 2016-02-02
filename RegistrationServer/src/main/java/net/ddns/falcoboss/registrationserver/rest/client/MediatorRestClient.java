@@ -60,7 +60,7 @@ public class MediatorRestClient {
 					@Override
 			        public void completed(Response response) {
 						//Message message = response.readEntity(Message.class);
-						System.out.println("InvocationCallback completed: requestNewKey method.");
+						System.out.println("InvocationCallback completed: signFile method.");
 			        }
 					@Override
 			        public void failed(Throwable throwable) {

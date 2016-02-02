@@ -29,7 +29,6 @@
 			</plugin>
 		</plugins>
 	</build>
-
 	<parent>
 		<groupId>net.ddns.falcoboss.enterprise.systems.ee</groupId>
 		<artifactId>security-systems-ee</artifactId>

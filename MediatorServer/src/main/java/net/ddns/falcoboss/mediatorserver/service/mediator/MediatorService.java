@@ -99,12 +99,10 @@ public class MediatorService implements MediatorServiceProxy  {
 	            	String completeSignatureBase64String = KeyHelper.getBase64StringFromBigInteger(completeSignature);
 	            	Response response = Response.ok(completeSignatureBase64String, MediaType.APPLICATION_JSON).build();
 	                asyncResponse.resume(response);
-
 				} catch (Exception e) {
-					e.printStackTrace();
-				}
-            	
-            	
+					asyncResponse(asyncResponse, "Unknown Error", Response.Status.INTERNAL_SERVER_ERROR);
+        			e.printStackTrace();
+				} 	
             }
         }).start();
 	}
@@ -114,7 +112,7 @@ public class MediatorService implements MediatorServiceProxy  {
 		JsonObjectBuilder jsonObjBuilder = Json.createObjectBuilder();
 		jsonObjBuilder.add("message", responseMessage);
 		JsonObject jsonObj = jsonObjBuilder.build();
-		Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(jsonObj.toString()).build();
+		Response response = Response.status(responseStatus).entity(jsonObj.toString()).build();
 		asyncResponse.resume(response);
 	}
 

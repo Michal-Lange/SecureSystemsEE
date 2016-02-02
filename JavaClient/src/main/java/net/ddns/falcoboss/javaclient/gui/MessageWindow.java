@@ -84,6 +84,7 @@ public class MessageWindow extends JFrame implements Observer{
 		JPanel panelConversation = new JPanel();
 		
 		textAreaConversation = new JTextArea();
+		textAreaConversation.setLineWrap(true);
 		textAreaConversation.setEditable(false);
 		textAreaConversation.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		GroupLayout gl_panelConversation = new GroupLayout(panelConversation);

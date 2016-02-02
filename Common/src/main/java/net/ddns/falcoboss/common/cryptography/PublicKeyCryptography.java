@@ -25,6 +25,8 @@ public class PublicKeyCryptography {
 	
 	public static PrivateKey calculateUserPrivateKey(PrivateKey privateKey, BigInteger mediatorPrivateExponent) throws NoSuchAlgorithmException, InvalidKeySpecException
 	{
+		if(privateKey != null && mediatorPrivateExponent != null)
+			throw new InvalidKeySpecException();
 		RSAPrivateKey rsaPrivateKey  = ((RSAPrivateKey) privateKey);
 		
 		BigInteger modulus = rsaPrivateKey.getModulus();
@@ -41,7 +43,6 @@ public class PublicKeyCryptography {
 		RSAPrivateKeySpec rsaUserPrivateKeySpec = new RSAPrivateKeySpec(modulus, userPrivateExponent);
 		keyFactory = KeyFactory.getInstance("RSA");
 		PrivateKey userPrivateKey = keyFactory.generatePrivate(rsaUserPrivateKeySpec);
-		
 		return userPrivateKey;
 	}
 	

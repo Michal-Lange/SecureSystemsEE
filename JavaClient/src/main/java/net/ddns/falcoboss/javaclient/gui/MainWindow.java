@@ -1,6 +1,7 @@
 package net.ddns.falcoboss.javaclient.gui;
 
 import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -18,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPublicKey;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Observable;
@@ -47,12 +49,15 @@ import javax.xml.bind.JAXBException;
 
 import org.eclipse.wb.swing.FocusTraversalOnArray;
 
+import net.ddns.falcoboss.common.cryptography.KeyHelper;
 import net.ddns.falcoboss.common.cryptography.SHA512;
 import net.ddns.falcoboss.javaclient.api.Facade;
 import net.ddns.falcoboss.javaclient.api.User;
 import net.ddns.falcoboss.javaclient.api.UserStatus;
 import net.ddns.falcoboss.javaclient.api.XmlSerializer;
 import javax.swing.JTextArea;
+import javax.swing.JPasswordField;
+import javax.swing.UIManager;
 
 @SuppressWarnings("serial")
 public class MainWindow extends JFrame implements Observer{
@@ -66,18 +71,21 @@ public class MainWindow extends JFrame implements Observer{
 	private JTextField textFieldLastName;
 	private Map<User, MessageWindow> userMessageWindows;
 	private Facade facade;
-	private JTextField textFieldFile;
-	private JTextField textFieldSignature;
-	private JTextField textFieldCertyficate;
-	private JTextField textFieldSignFilePath;
+	private JTextField textFieldVerifyFileName;
+	private JTextField textFieldPublicKey;
+	private JTextField textFieldSignFileName;
 	private JTextField textFieldActualPassword;
 	private JTextField textField_2;
 	private JTextField textFieldConfirmPassword;
 	private JTextField textFieldKeyUsername;
-	private JTextField textFieldKeyPassword;
 	private JButton btnRequestNewKeyPair;
 	private JTextField textFieldKeyBitLength;
 	private JTextArea textAreaSignFileHash;
+	private JPasswordField passwordFieldKeyPassword;
+	private JTextArea textAreaFileSignature;
+	private JTextField textFieldSignature;
+	private JButton btnVerifyFileSignature;
+	private JLabel lblVefivicationInformation;
 
 	/**
 	 * Launch the application.
@@ -103,6 +111,7 @@ public class MainWindow extends JFrame implements Observer{
 			@Override
 			public void windowOpened(WindowEvent e) {
 				loadUserList();
+				udpateKeyInfo();
 				facade.addObserver(mainWindow);
 				facade.startReciveMessages();
 			}
@@ -352,23 +361,22 @@ public class MainWindow extends JFrame implements Observer{
 		gl_panelDigitalSignature.setHorizontalGroup(
 			gl_panelDigitalSignature.createParallelGroup(Alignment.LEADING)
 				.addComponent(panelVerifySignature, GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
-				.addComponent(panelSign, GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+				.addComponent(panelSign, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
 		);
 		gl_panelDigitalSignature.setVerticalGroup(
-			gl_panelDigitalSignature.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_panelDigitalSignature.createSequentialGroup()
-					.addComponent(panelVerifySignature, GroupLayout.PREFERRED_SIZE, 181, GroupLayout.PREFERRED_SIZE)
+			gl_panelDigitalSignature.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, gl_panelDigitalSignature.createSequentialGroup()
+					.addComponent(panelVerifySignature, GroupLayout.PREFERRED_SIZE, 219, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(panelSign, GroupLayout.PREFERRED_SIZE, 243, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(172, Short.MAX_VALUE))
+					.addComponent(panelSign, GroupLayout.DEFAULT_SIZE, 377, Short.MAX_VALUE))
 		);
 		
 		JLabel lblSignFile = new JLabel("Sign File");
 		lblSignFile.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
-		textFieldSignFilePath = new JTextField();
-		textFieldSignFilePath.setEditable(false);
-		textFieldSignFilePath.setColumns(10);
+		textFieldSignFileName = new JTextField();
+		textFieldSignFileName.setEditable(false);
+		textFieldSignFileName.setColumns(10);
 		
 		JButton btnLoadFileToSign = new JButton("Load File");
 		btnLoadFileToSign.addActionListener(new ActionListener() {
@@ -378,12 +386,11 @@ public class MainWindow extends JFrame implements Observer{
 				int result = fileChooser.showOpenDialog(mainWindow);
 				if (result == JFileChooser.APPROVE_OPTION) {
 				    File selectedFile = fileChooser.getSelectedFile();
-				    String absolutePath = selectedFile.getAbsolutePath();
+				    textFieldSignFileName.setText(selectedFile.getName());
 				    new Thread(new Runnable() {
 						public void run() {
 							try {
-								byte[] selectedFileAllBytes = Files.readAllBytes(Paths.get(absolutePath));
-								String fileHash = SHA512.convertByteToHex(selectedFileAllBytes);
+								String fileHash = SHA512.hashFile(selectedFile);
 								SwingUtilities.invokeLater(new Runnable() {
 									public void run() {
 										textAreaSignFileHash.setText(fileHash);
@@ -405,39 +412,52 @@ public class MainWindow extends JFrame implements Observer{
 		JButton btnSignFile = new JButton("Sign File");
 		btnSignFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				facade.signFileHash(textAreaSignFileHash.getText());
+				facade.signFileHash(textAreaSignFileHash.getText(), textFieldSignFileName.getText());
 			}
 		});
 		btnSignFile.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		
-		JButton btnSaveSignature = new JButton("Save Signature");
 		
 		textAreaSignFileHash = new JTextArea();
 		textAreaSignFileHash.setLineWrap(true);
 		textAreaSignFileHash.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		textAreaSignFileHash.setEditable(false);
+		
+		textAreaFileSignature = new JTextArea();
+		textAreaFileSignature.setLineWrap(true);
+		textAreaFileSignature.setFont(new Font("Tahoma", Font.PLAIN, 12));
+		textAreaFileSignature.setEditable(false);
+		
+		JLabel lblFileShaHash = new JLabel("File SHA-512 Hash:");
+		
+		JLabel lblFileSignature = new JLabel("File Signature:");
 		GroupLayout gl_panelSign = new GroupLayout(panelSign);
 		gl_panelSign.setHorizontalGroup(
 			gl_panelSign.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelSign.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_panelSign.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_panelSign.createParallelGroup(Alignment.TRAILING)
 						.addGroup(gl_panelSign.createSequentialGroup()
-							.addComponent(textAreaSignFileHash, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
-							.addContainerGap())
-						.addGroup(Alignment.TRAILING, gl_panelSign.createSequentialGroup()
 							.addGroup(gl_panelSign.createParallelGroup(Alignment.LEADING)
 								.addComponent(lblSignFile)
 								.addGroup(gl_panelSign.createSequentialGroup()
 									.addComponent(btnLoadFileToSign, GroupLayout.PREFERRED_SIZE, 113, GroupLayout.PREFERRED_SIZE)
 									.addPreferredGap(ComponentPlacement.RELATED)
-									.addComponent(textFieldSignFilePath, GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)))
+									.addComponent(textFieldSignFileName, GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)))
 							.addContainerGap())
-						.addGroup(Alignment.TRAILING, gl_panelSign.createSequentialGroup()
-							.addComponent(btnSaveSignature, GroupLayout.DEFAULT_SIZE, 113, Short.MAX_VALUE)
-							.addGap(266))
-						.addGroup(Alignment.TRAILING, gl_panelSign.createSequentialGroup()
+						.addGroup(gl_panelSign.createSequentialGroup()
+							.addComponent(lblFileShaHash)
+							.addContainerGap(287, Short.MAX_VALUE))
+						.addGroup(gl_panelSign.createSequentialGroup()
+							.addComponent(textAreaSignFileHash, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+							.addContainerGap())
+						.addGroup(gl_panelSign.createSequentialGroup()
 							.addComponent(btnSignFile, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+							.addContainerGap())
+						.addGroup(gl_panelSign.createSequentialGroup()
+							.addComponent(lblFileSignature)
+							.addContainerGap(310, Short.MAX_VALUE))
+						.addGroup(gl_panelSign.createSequentialGroup()
+							.addComponent(textAreaFileSignature, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
 							.addContainerGap())))
 		);
 		gl_panelSign.setVerticalGroup(
@@ -448,14 +468,18 @@ public class MainWindow extends JFrame implements Observer{
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panelSign.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnLoadFileToSign)
-						.addComponent(textFieldSignFilePath, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(textFieldSignFileName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addComponent(lblFileShaHash)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(textAreaSignFileHash, GroupLayout.PREFERRED_SIZE, 46, GroupLayout.PREFERRED_SIZE)
-					.addPreferredGap(ComponentPlacement.UNRELATED)
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnSignFile)
-					.addPreferredGap(ComponentPlacement.RELATED, 59, Short.MAX_VALUE)
-					.addComponent(btnSaveSignature)
-					.addContainerGap())
+					.addGap(18)
+					.addComponent(lblFileSignature)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addComponent(textAreaFileSignature, GroupLayout.PREFERRED_SIZE, 47, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(50, Short.MAX_VALUE))
 		);
 		panelSign.setLayout(gl_panelSign);
 		
@@ -463,43 +487,160 @@ public class MainWindow extends JFrame implements Observer{
 		lblVerifySignature.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
 		JButton btnLoadFile = new JButton("Load File");
+		btnLoadFile.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Load file for signature verify");
+				int result = fileChooser.showOpenDialog(mainWindow);
+				if (result == JFileChooser.APPROVE_OPTION) {
+				    File selectedFile = fileChooser.getSelectedFile();
+				    textFieldVerifyFileName.setText(selectedFile.getName());
+				    new Thread(new Runnable() {
+						public void run() {
+							try {
+								String fileHashHex = SHA512.hashFile(selectedFile);
+								BigInteger fileHash = new BigInteger(fileHashHex,16);
+								facade.setVerificationFileHash(fileHash);
+								SwingUtilities.invokeLater(new Runnable() {
+									public void run() {
+										
+									}
+								});
+							} catch (Exception e1) {
+								JOptionPane.showMessageDialog(mainWindow,
+									     e1.getMessage(),
+									    "File Load Error",
+									    JOptionPane.INFORMATION_MESSAGE);
+								e1.printStackTrace();
+							}
+						}
+					}).start();
+				}
+			}
+		});
 		
-		JButton btnLoadSignature = new JButton("Load Signature");
+		JButton btnLoadSignature = new JButton("Load File Signature");
+		btnLoadSignature.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Load File Signature");
+				int result = fileChooser.showOpenDialog(mainWindow);
+				if (result == JFileChooser.APPROVE_OPTION) {
+				    File selectedFile = fileChooser.getSelectedFile();
+				    textFieldSignature.setText(selectedFile.getName());
+				    new Thread(new Runnable() {
+						public void run() {
+							try {
+								BigInteger verificationSignature = new BigInteger(facade.loadSignature(selectedFile.getAbsolutePath()));
+								facade.setVerificationSignature(verificationSignature);
+							} catch (Exception e1) {
+								JOptionPane.showMessageDialog(mainWindow,
+									     e1.getMessage(),
+									    "File Load Error",
+									    JOptionPane.INFORMATION_MESSAGE);
+								e1.printStackTrace();
+							}
+						}
+					}).start();
+				}
+			}
+		});
 		
-		JButton btnLoad = new JButton("Load Certyficate");
+		JButton btnLoadPublicKey = new JButton("Load Public Key");
+		btnLoadPublicKey.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JFileChooser fileChooser = new JFileChooser();
+				fileChooser.setDialogTitle("Load Public Key");
+				int result = fileChooser.showOpenDialog(mainWindow);
+				if (result == JFileChooser.APPROVE_OPTION) {
+				    File selectedFile = fileChooser.getSelectedFile();
+				    textFieldPublicKey.setText(selectedFile.getName());
+				    new Thread(new Runnable() {
+						public void run() {
+							try {
+								RSAPublicKey verificationPublicKey = (RSAPublicKey) facade.openPublicKey(selectedFile.getAbsolutePath());
+								facade.setVerificationRSAPublicKey(verificationPublicKey);
+							} catch (Exception e1) {
+								JOptionPane.showMessageDialog(mainWindow,
+									     e1.getMessage(),
+									    "File Load Error",
+									    JOptionPane.INFORMATION_MESSAGE);
+								e1.printStackTrace();
+							}
+						}
+					}).start();
+				}
+			}
+		});
 		
-		textFieldFile = new JTextField();
-		textFieldFile.setEditable(false);
-		textFieldFile.setColumns(10);
+		textFieldVerifyFileName = new JTextField();
+		textFieldVerifyFileName.setEditable(false);
+		textFieldVerifyFileName.setColumns(10);
 		
 		textFieldSignature = new JTextField();
 		textFieldSignature.setEditable(false);
 		textFieldSignature.setColumns(10);
 		
-		textFieldCertyficate = new JTextField();
-		textFieldCertyficate.setEditable(false);
-		textFieldCertyficate.setColumns(10);
+		textFieldPublicKey = new JTextField();
+		textFieldPublicKey.setEditable(false);
+		textFieldPublicKey.setColumns(10);
 		
-		JButton btnVerify = new JButton("Verify File");
-		btnVerify.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnVerifyFileSignature = new JButton("Verify File Signature");
+		btnVerifyFileSignature.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						BigInteger fileHash = facade.getVerificationFileHash();
+						BigInteger fileSignature = facade.getVerificationSignature();
+						RSAPublicKey rsaPublicKey= facade.getVerificationRSAPublicKey();
+						if(fileHash != null && fileSignature != null && rsaPublicKey != null)
+						{
+							boolean verification = facade.verifyFileSignature(facade.getVerificationFileHash(), fileSignature, rsaPublicKey);
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									if(verification) {
+										lblVefivicationInformation.setForeground(Color.GREEN);
+										lblVefivicationInformation.setText("Verification Success!");
+									} else {
+										lblVefivicationInformation.setForeground(Color.RED);
+										lblVefivicationInformation.setText("Verification Fail!");
+									}
+								}
+							});
+						} else {
+							JOptionPane.showMessageDialog(mainWindow,
+								    "Load File, File Signature and Public Key!",
+								    "Missing Verification Data!",
+								    JOptionPane.WARNING_MESSAGE);
+						}
+					}
+				}).start();
+			}
+		});
+		btnVerifyFileSignature.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		
+		lblVefivicationInformation = new JLabel("Vefivication Information:");
+		lblVefivicationInformation.setFont(new Font("Tahoma", Font.PLAIN, 16));
 		GroupLayout gl_panelVerifySignature = new GroupLayout(panelVerifySignature);
 		gl_panelVerifySignature.setHorizontalGroup(
-			gl_panelVerifySignature.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panelVerifySignature.createSequentialGroup()
+			gl_panelVerifySignature.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panelVerifySignature.createSequentialGroup()
 					.addContainerGap()
-					.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.TRAILING)
-						.addComponent(btnVerify, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+					.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panelVerifySignature.createSequentialGroup()
 							.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.TRAILING, false)
 								.addComponent(btnLoadSignature, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(lblVerifySignature, Alignment.LEADING)
-								.addComponent(btnLoad, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+								.addComponent(btnLoadPublicKey, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 								.addComponent(btnLoadFile, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 							.addPreferredGap(ComponentPlacement.RELATED)
 							.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.LEADING)
-								.addComponent(textFieldSignature, GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-								.addComponent(textFieldFile, GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE)
-								.addComponent(textFieldCertyficate, GroupLayout.DEFAULT_SIZE, 250, Short.MAX_VALUE))))
+								.addComponent(textFieldSignature, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+								.addComponent(textFieldVerifyFileName, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)
+								.addComponent(textFieldPublicKey, GroupLayout.DEFAULT_SIZE, 240, Short.MAX_VALUE)))
+						.addComponent(btnVerifyFileSignature, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+						.addComponent(lblVefivicationInformation, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		gl_panelVerifySignature.setVerticalGroup(
@@ -510,18 +651,20 @@ public class MainWindow extends JFrame implements Observer{
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnLoadFile)
-						.addComponent(textFieldFile, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(textFieldVerifyFileName, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.BASELINE)
 						.addComponent(btnLoadSignature)
 						.addComponent(textFieldSignature, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addGroup(gl_panelVerifySignature.createParallelGroup(Alignment.BASELINE)
-						.addComponent(btnLoad)
-						.addComponent(textFieldCertyficate, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+						.addComponent(btnLoadPublicKey)
+						.addComponent(textFieldPublicKey, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnVerify)
-					.addContainerGap(35, Short.MAX_VALUE))
+					.addComponent(btnVerifyFileSignature)
+					.addGap(18)
+					.addComponent(lblVefivicationInformation, GroupLayout.PREFERRED_SIZE, 39, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(88, Short.MAX_VALUE))
 		);
 		panelVerifySignature.setLayout(gl_panelVerifySignature);
 		panelDigitalSignature.setLayout(gl_panelDigitalSignature);
@@ -548,9 +691,6 @@ public class MainWindow extends JFrame implements Observer{
 		textFieldKeyUsername = new JTextField();
 		textFieldKeyUsername.setColumns(10);
 		
-		textFieldKeyPassword = new JTextField();
-		textFieldKeyPassword.setColumns(10);
-		
 		JLabel labelRequestNewKey = new JLabel("Request New Key Pair");
 		labelRequestNewKey.setFont(new Font("Tahoma", Font.PLAIN, 14));
 		
@@ -559,43 +699,16 @@ public class MainWindow extends JFrame implements Observer{
 		textFieldKeyBitLength = new JTextField();
 		textFieldKeyBitLength.setEditable(false);
 		textFieldKeyBitLength.setColumns(10);
-
 		
-		JButton btnPublicKeyDetails = new JButton("Public Key Details");
-		btnPublicKeyDetails.addActionListener(new ActionListener() {
+		JButton btnKeyPairDetails = new JButton("Key Pair Details");
+		btnKeyPairDetails.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(facade.getPrivateKey() != null && facade.getPublicKey() != null)
-				{
-					JOptionPane.showMessageDialog(mainWindow,
-						    "Public Exponent: " + facade.getPublicKey().getPublicExponent().toString()
-						    + "\n\nModulus: " + facade.getPublicKey().getModulus().toString(),
-						    "RSA Public Key",
-						    JOptionPane.INFORMATION_MESSAGE);
-				}
-				else
-				{
-					noRSAKeyMessageWindow();
-				}
+				
+				showKeyDedailsWindow();
 			}
 		});
 		
-		JButton btnPrivateKeyDetails = new JButton("Private Key Details");
-		btnPrivateKeyDetails.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(facade.getPrivateKey() != null && facade.getPublicKey() != null)
-				{
-					JOptionPane.showMessageDialog(mainWindow,
-						    "Private Exponent: " + facade.getPrivateKey().getPrivateExponent().toString()
-						    + "\n\nModulus: " + facade.getPrivateKey().getModulus().toString(),
-						    "RSA Private Key",
-						    JOptionPane.INFORMATION_MESSAGE);
-				}
-				else
-				{
-					noRSAKeyMessageWindow();
-				}
-			}
-		});
+		passwordFieldKeyPassword = new JPasswordField();
 		GroupLayout gl_panelRequestNewKey = new GroupLayout(panelRequestNewKey);
 		gl_panelRequestNewKey.setHorizontalGroup(
 			gl_panelRequestNewKey.createParallelGroup(Alignment.LEADING)
@@ -603,50 +716,47 @@ public class MainWindow extends JFrame implements Observer{
 					.addContainerGap()
 					.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.LEADING)
 						.addComponent(lblDigitalSignatureKey, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
+						.addGroup(gl_panelRequestNewKey.createSequentialGroup()
+							.addComponent(lblKeyBitLength)
+							.addGap(18)
+							.addComponent(textFieldKeyBitLength, GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE))
+						.addComponent(btnKeyPairDetails, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
 						.addComponent(labelRequestNewKey, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
 						.addGroup(gl_panelRequestNewKey.createSequentialGroup()
 							.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.LEADING)
 								.addComponent(lblKeyUsername)
 								.addComponent(lblKeyPassword))
 							.addGap(18)
-							.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.LEADING)
-								.addComponent(textFieldKeyUsername, GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
-								.addComponent(textFieldKeyPassword, GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)))
-						.addComponent(btnRequestNewKeyPair, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 359, Short.MAX_VALUE)
-						.addGroup(gl_panelRequestNewKey.createSequentialGroup()
-							.addComponent(lblKeyBitLength)
-							.addGap(18)
-							.addComponent(textFieldKeyBitLength, GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE))
-						.addComponent(btnPublicKeyDetails, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE)
-						.addComponent(btnPrivateKeyDetails, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
+							.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.TRAILING)
+								.addComponent(passwordFieldKeyPassword, GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)
+								.addComponent(textFieldKeyUsername, Alignment.LEADING, GroupLayout.DEFAULT_SIZE, 299, Short.MAX_VALUE)))
+						.addComponent(btnRequestNewKeyPair, GroupLayout.DEFAULT_SIZE, 369, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		gl_panelRequestNewKey.setVerticalGroup(
-			gl_panelRequestNewKey.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panelRequestNewKey.createSequentialGroup()
+			gl_panelRequestNewKey.createParallelGroup(Alignment.TRAILING)
+				.addGroup(Alignment.LEADING, gl_panelRequestNewKey.createSequentialGroup()
 					.addContainerGap()
 					.addComponent(lblDigitalSignatureKey)
 					.addGap(24)
 					.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblKeyBitLength)
 						.addComponent(textFieldKeyBitLength, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(18)
-					.addComponent(btnPublicKeyDetails)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(btnPrivateKeyDetails)
-					.addPreferredGap(ComponentPlacement.RELATED, 17, Short.MAX_VALUE)
+					.addComponent(btnKeyPairDetails)
+					.addGap(18)
 					.addComponent(labelRequestNewKey, GroupLayout.PREFERRED_SIZE, 17, GroupLayout.PREFERRED_SIZE)
 					.addGap(18)
 					.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblKeyUsername)
 						.addComponent(textFieldKeyUsername, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_panelRequestNewKey.createParallelGroup(Alignment.BASELINE)
 						.addComponent(lblKeyPassword)
-						.addComponent(textFieldKeyPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
-					.addGap(18)
+						.addComponent(passwordFieldKeyPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE))
+					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(btnRequestNewKeyPair)
-					.addContainerGap())
+					.addContainerGap(63, Short.MAX_VALUE))
 		);
 		panelRequestNewKey.setLayout(gl_panelRequestNewKey);
 		
@@ -655,15 +765,15 @@ public class MainWindow extends JFrame implements Observer{
 		gl_panelConfiguration.setHorizontalGroup(
 			gl_panelConfiguration.createParallelGroup(Alignment.LEADING)
 				.addComponent(panelRequestNewKey, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
-				.addComponent(panelPassword, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+				.addComponent(panelPassword, GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
 		);
 		gl_panelConfiguration.setVerticalGroup(
-			gl_panelConfiguration.createParallelGroup(Alignment.TRAILING)
+			gl_panelConfiguration.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelConfiguration.createSequentialGroup()
-					.addComponent(panelRequestNewKey, GroupLayout.PREFERRED_SIZE, 292, GroupLayout.PREFERRED_SIZE)
+					.addComponent(panelRequestNewKey, GroupLayout.PREFERRED_SIZE, 244, GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(ComponentPlacement.RELATED)
-					.addComponent(panelPassword, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
-					.addContainerGap(127, Short.MAX_VALUE))
+					.addComponent(panelPassword, GroupLayout.PREFERRED_SIZE, 158, GroupLayout.PREFERRED_SIZE)
+					.addContainerGap(194, Short.MAX_VALUE))
 		);
 		
 		JLabel lblPassword = new JLabel("Change Password");
@@ -733,6 +843,14 @@ public class MainWindow extends JFrame implements Observer{
 		userMessageWindows = new HashMap<User, MessageWindow>();
 	}
 	
+	@Override
+	public void update(Observable o, Object arg) {
+		checkErrors();
+		updateUserList();
+		udpateKeyInfo();
+		updateSignatureInfo();
+	}
+	
 	private void logout(){
 		Response response = facade.logout();
 		if(response.getStatus() == 204){
@@ -749,45 +867,6 @@ public class MainWindow extends JFrame implements Observer{
 			e.printStackTrace();
 		}
 		updateUserList();
-	}
-	
-	public void updateUserList() {
-		DefaultTableModel tableUsersModel = (DefaultTableModel) tableUsers.getModel();
-		tableUsersModel.setRowCount(0);
-		for (int i = 0; i < facade.getUserList().size(); i++) {
-	        Object[] data = new String[3];
-
-	            data[0] = facade.getUserList().get(i).getFistName() + " " + facade.getUserList().get(i).getLastName() + " (" + facade.getUserList().get(i).getUsername() + ")";
-	            data[1] = facade.getUserList().get(i).getUserStatus().toString();
-	            if(facade.getUserList().get(i).isUpdated()){
-	            	data[2] = "MSG";
-	            }
-	            else{
-	            	data[2] = "";
-	            }
-	            tableUsersModel.addRow(data);
-	    }
-		tableUsersModel.fireTableDataChanged();
-	}
-	
-	public void udpateKeyInfo(){
-		if(facade.getPrivateKey() != null && facade.getPublicKey() != null)
-		{
-			int keyBitLength = facade.getPrivateKey().getModulus().bitLength();
-			textFieldKeyBitLength.setText(Integer.toString(keyBitLength));
-		}
-	}
-
-	public JLabel getLblToken() {
-		return lblToken;
-	}
-
-	public Facade getFacade() {
-		return facade;
-	}
-
-	public void setFacade(Facade facade) {
-		this.facade = facade;
 	}
 	
 	private void addNewUser(){
@@ -827,7 +906,7 @@ public class MainWindow extends JFrame implements Observer{
 	
 	private void requestNewKey()
 	{
-		if("".equals(textFieldKeyUsername.getText()) || "".equals(textFieldKeyPassword.getText()))
+		if("".equals(textFieldKeyUsername.getText()) || passwordFieldKeyPassword.getPassword()==null)
 		{
 			JOptionPane.showMessageDialog(mainWindow,
 				    "Enter Username and Password",
@@ -841,10 +920,12 @@ public class MainWindow extends JFrame implements Observer{
 				@Override
 				public void run() {
 					try {
-						facade.requestNewKey(textFieldKeyUsername.getText(), textFieldKeyPassword.getText());
+						facade.requestNewKey(textFieldKeyUsername.getText(), new String(passwordFieldKeyPassword.getPassword()));
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
 								btnRequestNewKeyPair.setEnabled(true);
+								textFieldKeyUsername.setText("");
+								passwordFieldKeyPassword.setText("");
 							}
 						});
 					} catch(Exception e){
@@ -853,10 +934,28 @@ public class MainWindow extends JFrame implements Observer{
 							    "Error",
 							    JOptionPane.WARNING_MESSAGE);
 						btnRequestNewKeyPair.setEnabled(true);
+						textFieldKeyUsername.setText("");
+						passwordFieldKeyPassword.setText("");
 					}
 				}
 			}).start();
+			
 		}
+	}
+	
+	public void showKeyDedailsWindow()
+	{
+		KeyInfoWindow keyInfoWindow = new KeyInfoWindow();
+		keyInfoWindow.setFacade(facade);
+		if(facade.getPrivateKey() != null && facade.getPublicKey() != null)
+		{
+			int keyBitLength = facade.getPrivateKey().getModulus().bitLength();
+			keyInfoWindow.setTitle("RSA Key Pair Bitlength: " + Integer.toString(keyBitLength));
+		}else {
+			keyInfoWindow.setTitle("RSA Key pair not loaded!");
+
+		}
+		keyInfoWindow.setVisible(true);
 	}
 	
 	public void noRSAKeyMessageWindow()
@@ -866,13 +965,7 @@ public class MainWindow extends JFrame implements Observer{
 			    "RSA key not loaded!",
 			    JOptionPane.WARNING_MESSAGE);
 	}
-
-	@Override
-	public void update(Observable o, Object arg) {
-		checkErrors();
-		updateUserList();
-		udpateKeyInfo();
-	}
+	
 	private void checkErrors() {
 		synchronized(facade.getErrorResponse())
 		{
@@ -885,8 +978,7 @@ public class MainWindow extends JFrame implements Observer{
 						    "Wrong username or password",
 						    "Login Error",
 						    JOptionPane.WARNING_MESSAGE);
-				}
-				if(responseStatus == 500)
+				}else if(responseStatus == 500)
 				{
 					JOptionPane.showMessageDialog(mainWindow,
 						    "Registration Server Error",
@@ -903,11 +995,64 @@ public class MainWindow extends JFrame implements Observer{
 			}
 		}
 	}
+	
+	public void updateUserList() {
+		DefaultTableModel tableUsersModel = (DefaultTableModel) tableUsers.getModel();
+		tableUsersModel.setRowCount(0);
+		for (int i = 0; i < facade.getUserList().size(); i++) {
+	        Object[] data = new String[3];
+
+	            data[0] = facade.getUserList().get(i).getFistName() + " " + facade.getUserList().get(i).getLastName() + " (" + facade.getUserList().get(i).getUsername() + ")";
+	            data[1] = facade.getUserList().get(i).getUserStatus().toString();
+	            if(facade.getUserList().get(i).isUpdated()){
+	            	data[2] = "MSG";
+	            }
+	            else{
+	            	data[2] = "";
+	            }
+	            tableUsersModel.addRow(data);
+	    }
+		tableUsersModel.fireTableDataChanged();
+	}
+	
+	public void udpateKeyInfo(){
+		if(facade.getPrivateKey() != null && facade.getPublicKey() != null)
+		{
+			int keyBitLength = facade.getPrivateKey().getModulus().bitLength();
+			textFieldKeyBitLength.setText(Integer.toString(keyBitLength));
+		}
+	}
+	
+	private void updateSignatureInfo() {
+		textAreaFileSignature.setText(facade.getLastSignature());
+		
+	}
+	
+	public JLabel getLblToken() {
+		return lblToken;
+	}
+
+	public Facade getFacade() {
+		return facade;
+	}
+
+	public void setFacade(Facade facade) {
+		this.facade = facade;
+	}
 
 	public JTextField getTextFieldSignFilePath() {
-		return textFieldSignFilePath;
+		return textFieldSignFileName;
 	}
 	public JTextArea getTextAreaSignFileHash() {
 		return textAreaSignFileHash;
+	}
+	public JTextField getTextFieldSignature() {
+		return textFieldSignature;
+	}
+	public JButton getBtnVerifyFileSignature() {
+		return btnVerifyFileSignature;
+	}
+	public JLabel getLblVefivicationInformation() {
+		return lblVefivicationInformation;
 	}
 }

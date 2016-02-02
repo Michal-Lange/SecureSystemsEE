@@ -82,7 +82,7 @@ public class AuthenticatorBean {
         throw new GeneralSecurityException("Invalid service key and authorization token match.");
     }
     
-    public void isUsernameAndPasswordValid(String serviceKey, String username, String password) throws LoginException {
+    public boolean isUsernameAndPasswordValid(String serviceKey, String username, String password) {
     	User userFoundByServiceKey = userBean.findByServiceKey(serviceKey);
     	if(userFoundByServiceKey != null) {
     		String usernameMatch = userFoundByServiceKey.getUsername();
@@ -90,10 +90,10 @@ public class AuthenticatorBean {
     		{
         		User userFoundByUsername = userBean.find(username);
         		if (password.equals(userFoundByUsername.getPassword()) ) {
-        			return;
+        			return true;
         		}
     		}
     	}
-    	throw new LoginException("Invalid username or password");
+    	return false;
     }
 }

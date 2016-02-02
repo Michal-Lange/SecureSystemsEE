@@ -18,16 +18,17 @@ import javax.ws.rs.core.Response;
 
 import net.ddns.falcoboss.common.cryptography.SHA512;
 import net.ddns.falcoboss.javaclient.api.Facade;
+import javax.swing.JPasswordField;
 
 @SuppressWarnings("serial")
 public class LoginWindow extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField textFieldLogin;
-	private JTextField textFieldPassword;
 	private JLabel lblLoginStatus;
 	private JButton buttonLogin;
 	private Facade facade;
+	private JPasswordField passwordFieldpassword;
 
 	/**
 	 * Launch the application.
@@ -80,16 +81,6 @@ public class LoginWindow extends JFrame {
 		textFieldLogin.setBounds(94, 8, 220, 20);
 		panelLogin.add(textFieldLogin);
 
-		textFieldPassword = new JTextField();
-		textFieldPassword.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				login();
-			}
-		});
-		textFieldPassword.setColumns(10);
-		textFieldPassword.setBounds(94, 33, 220, 20);
-		panelLogin.add(textFieldPassword);
-
 		lblLoginStatus = new JLabel("");
 		lblLoginStatus.setFont(new Font("Tahoma", Font.PLAIN, 10));
 		lblLoginStatus.setForeground(Color.RED);
@@ -105,53 +96,64 @@ public class LoginWindow extends JFrame {
 			}
 		});
 		getRootPane().setDefaultButton(buttonLogin);
+		
+		passwordFieldpassword = new JPasswordField();
+		passwordFieldpassword.setBounds(94, 33, 220, 20);
+		panelLogin.add(passwordFieldpassword);
 		this.facade = new Facade();
 	}
 
 	public void login() {
 		buttonLogin.setEnabled(false);
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					Response response = facade.login(textFieldLogin.getText(), SHA512.hashText(textFieldPassword.getText()));
-					if (response.getStatus() == 200) {
-						MainWindow mainWindow = new MainWindow();
-						mainWindow.setFacade(facade);
-						mainWindow.setTitle(textFieldLogin.getText());
-						mainWindow.setVisible(true);
-						dispose();
-					}
-					if (response.getStatus() == 401) {
+		if(passwordFieldpassword.getPassword()!=null){	
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Response response = facade.login(textFieldLogin.getText(), SHA512.hashText(new String(passwordFieldpassword.getPassword())));
+						if (response.getStatus() == 200) {
+							MainWindow mainWindow = new MainWindow();
+							mainWindow.setFacade(facade);
+							mainWindow.setTitle(textFieldLogin.getText());
+							mainWindow.setVisible(true);
+							dispose();
+						}
+						if (response.getStatus() == 401) {
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									lblLoginStatus.setText("Incorrect username and/or password!");
+									buttonLogin.setEnabled(true);
+								}
+							});
+						} else {
+							SwingUtilities.invokeLater(new Runnable() {
+								public void run() {
+									lblLoginStatus.setText("Http Status: " + response.getStatus());
+									buttonLogin.setEnabled(true);
+								}
+							});
+						}
+					} catch (IOException e1) {
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								lblLoginStatus.setText("Incorrect username and/or password!");
+								lblLoginStatus.setText("config.properties error!");
 								buttonLogin.setEnabled(true);
 							}
 						});
-					} else {
+					} catch (Exception e2) {
 						SwingUtilities.invokeLater(new Runnable() {
 							public void run() {
-								lblLoginStatus.setText("Http Status: " + response.getStatus());
+								lblLoginStatus.setText("Unknown error:" + e2.toString());
 								buttonLogin.setEnabled(true);
 							}
 						});
 					}
-				} catch (IOException e1) {
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							lblLoginStatus.setText("config.properties error!");
-							buttonLogin.setEnabled(true);
-						}
-					});
-				} catch (Exception e2) {
-					SwingUtilities.invokeLater(new Runnable() {
-						public void run() {
-							lblLoginStatus.setText("Unknown error:" + e2.toString());
-							buttonLogin.setEnabled(true);
-						}
-					});
 				}
-			}
-		}).start();
+			}).start();
+		}
+		else
+		{
+			lblLoginStatus.setText("Incorrect username and/or password!");
+		}
 	}
 }

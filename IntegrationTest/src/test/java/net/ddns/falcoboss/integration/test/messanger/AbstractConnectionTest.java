@@ -1,9 +1,11 @@
-package net.ddns.falcoboss.javaclient.rest.client;
+package net.ddns.falcoboss.integration.test.messanger;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.eclipse.persistence.jaxb.rs.MOXyJsonProvider;
+import org.glassfish.jersey.client.ClientConfig;
 import org.json.JSONObject;
 import org.junit.Before;
 
@@ -20,7 +22,7 @@ public abstract class AbstractConnectionTest {
     public void initClient() throws Exception {
     	password1Hash = SHA512.hashText("password1");
     	password2Hash = SHA512.hashText("password2");
-		
+
         this.client = ClientBuilder.newClient();
         this.webTarget = this.client.target("http://localhost:8080/registration-server/rest/service/");
     }

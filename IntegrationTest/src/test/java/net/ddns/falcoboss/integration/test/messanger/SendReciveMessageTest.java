@@ -1,4 +1,4 @@
-package net.ddns.falcoboss.javaclient.rest.client;
+package net.ddns.falcoboss.integration.test.messanger;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
