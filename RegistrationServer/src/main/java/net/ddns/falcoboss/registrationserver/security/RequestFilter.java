@@ -27,19 +27,27 @@ public class RequestFilter implements ContainerRequestFilter {
     AuthenticatorBean authenticatorBean;
     
     @Override
-    public void filter(ContainerRequestContext requestCtx) throws IOException {
-    	String path = requestCtx.getUriInfo().getPath();
+    public void filter(ContainerRequestContext requestContext) 
+    		throws IOException {
+    	String path = requestContext.getUriInfo().getPath();
         log.info( "Filtering request path: " + path );
-        String serviceKey = requestCtx.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
+        String serviceKey = 
+        		requestContext.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
         if (!authenticatorBean.isServiceKeyValid(serviceKey)) {
-            requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            requestContext.abortWith(Response.status(
+            		Response.Status.UNAUTHORIZED).build());
             return;
         }
  
         if (!path.startsWith( "service/login/" )) {
-            String authToken = requestCtx.getHeaderString(HTTPHeaderNames.AUTH_TOKEN);
-            if (!authenticatorBean.isAuthTokenValid(serviceKey, authToken)) {
-                requestCtx.abortWith(Response.status(Response.Status.UNAUTHORIZED).build());
+            String authToken = 
+            		requestContext.getHeaderString(
+            				HTTPHeaderNames.AUTH_TOKEN);
+            if (!authenticatorBean.
+            		isAuthTokenValid(serviceKey, authToken)) {
+                requestContext.abortWith(
+                		Response.status(
+                				Response.Status.UNAUTHORIZED).build());
             }
         }
     }

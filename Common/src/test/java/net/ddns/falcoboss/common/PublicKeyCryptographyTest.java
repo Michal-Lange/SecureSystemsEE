@@ -2,6 +2,8 @@ package net.ddns.falcoboss.common;
 
 import java.math.BigInteger;
 import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.RSAPrivateKey;
@@ -54,5 +56,27 @@ public class PublicKeyCryptographyTest {
 		System.out.println(privateExponentString);
 	}
 	
-	
+	@Test
+	public void testCreateKeyPairTimes() throws NoSuchAlgorithmException {
+		 long timeStart;
+		 long timeEnd;
+		 for(int j=512; j<4097; j=j+512)
+		 {
+			 long tt = 0;
+			 for(int i = 0;  i<6; i++){
+				 try {
+					 timeStart = System.currentTimeMillis();
+					 KeyPairGenerator keygen = KeyPairGenerator.getInstance("RSA");
+					 keygen.initialize(j);
+					 keygen.generateKeyPair();
+					 timeEnd = System.currentTimeMillis();
+					 tt += (timeEnd - timeStart);
+				 }
+				 catch (Exception e) {
+					 e.printStackTrace();
+				 }		
+			 }
+			 System.out.println("(" + j + "," + (tt/6) + ")");
+		 }
+	}
 }

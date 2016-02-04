@@ -3,7 +3,6 @@ package net.ddns.falcoboss.registrationserver.service.register;
 import java.io.Serializable;
 
 import javax.ejb.Local;
-import javax.ejb.Remote;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,6 +17,7 @@ import javax.ws.rs.core.Response;
 
 import net.ddns.falcoboss.common.transport.objects.MessageTO;
 import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.UserTO;
 import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
 
 @Local
@@ -58,4 +58,16 @@ public interface RegisterServiceProxy extends Serializable {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void signFile(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final PartiallySignatureTO partiallySignatureTO);
+    
+    @POST
+    @Path("update-user")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void updateUser(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UserTO UserTO);
+    
+    @POST
+    @Path("delete-user")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void deleteUser(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UserTO UserTO);
 }

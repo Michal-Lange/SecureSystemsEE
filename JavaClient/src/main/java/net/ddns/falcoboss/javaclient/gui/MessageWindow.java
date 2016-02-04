@@ -24,6 +24,7 @@ import java.awt.event.WindowFocusListener;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
 import javax.swing.LayoutStyle.ComponentPlacement;
+import javax.swing.JScrollPane;
 
 public class MessageWindow extends JFrame implements Observer{
 
@@ -83,25 +84,28 @@ public class MessageWindow extends JFrame implements Observer{
 		
 		JPanel panelConversation = new JPanel();
 		
-		textAreaConversation = new JTextArea();
-		textAreaConversation.setLineWrap(true);
-		textAreaConversation.setEditable(false);
-		textAreaConversation.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
+		JScrollPane scrollPaneConversation = new JScrollPane();
 		GroupLayout gl_panelConversation = new GroupLayout(panelConversation);
 		gl_panelConversation.setHorizontalGroup(
 			gl_panelConversation.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelConversation.createSequentialGroup()
 					.addContainerGap()
-					.addComponent(textAreaConversation, GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
+					.addComponent(scrollPaneConversation, GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
 					.addContainerGap())
 		);
 		gl_panelConversation.setVerticalGroup(
 			gl_panelConversation.createParallelGroup(Alignment.LEADING)
 				.addGroup(gl_panelConversation.createSequentialGroup()
-					.addContainerGap()
-					.addComponent(textAreaConversation, GroupLayout.DEFAULT_SIZE, 246, Short.MAX_VALUE)
+					.addGap(13)
+					.addComponent(scrollPaneConversation, GroupLayout.DEFAULT_SIZE, 244, Short.MAX_VALUE)
 					.addContainerGap())
 		);
+		
+		textAreaConversation = new JTextArea();
+		scrollPaneConversation.setViewportView(textAreaConversation);
+		textAreaConversation.setLineWrap(true);
+		textAreaConversation.setEditable(false);
+		textAreaConversation.setBorder(new LineBorder(new Color(0, 0, 0), 1, true));
 		panelConversation.setLayout(gl_panelConversation);
 		
 		JPanel panelSendMessage = new JPanel();
@@ -137,17 +141,17 @@ public class MessageWindow extends JFrame implements Observer{
 		panelSendMessage.setLayout(gl_panelSendMessage);
 		GroupLayout gl_panelMain = new GroupLayout(panelMain);
 		gl_panelMain.setHorizontalGroup(
-			gl_panelMain.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panelMain.createSequentialGroup()
+			gl_panelMain.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panelMain.createSequentialGroup()
 					.addGroup(gl_panelMain.createParallelGroup(Alignment.TRAILING)
 						.addComponent(panelConversation, GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE)
 						.addComponent(panelSendMessage, GroupLayout.DEFAULT_SIZE, 524, Short.MAX_VALUE))
 					.addContainerGap())
 		);
 		gl_panelMain.setVerticalGroup(
-			gl_panelMain.createParallelGroup(Alignment.LEADING)
-				.addGroup(Alignment.TRAILING, gl_panelMain.createSequentialGroup()
-					.addComponent(panelConversation, GroupLayout.DEFAULT_SIZE, 276, Short.MAX_VALUE)
+			gl_panelMain.createParallelGroup(Alignment.TRAILING)
+				.addGroup(gl_panelMain.createSequentialGroup()
+					.addComponent(panelConversation, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
 					.addPreferredGap(ComponentPlacement.RELATED)
 					.addComponent(panelSendMessage, GroupLayout.PREFERRED_SIZE, 82, GroupLayout.PREFERRED_SIZE))
 		);

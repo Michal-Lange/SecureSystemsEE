@@ -25,12 +25,12 @@ public class User extends Observable{
 
 	public void setMessages(List<MessageTO> messages) {
 		this.messages = messages;
+		update();
 	}
 	
 	public void addMessage(MessageTO message){
 		messages.add(message);
-		setChanged();
-	    notifyObservers();
+		update();
 	}
 
 	public User(){
@@ -49,6 +49,7 @@ public class User extends Observable{
 	
 	public void setUsername(String username) {
 		this.username = username;
+		update();
 	}
 	
 	@XmlAttribute
@@ -58,6 +59,7 @@ public class User extends Observable{
 	
 	public void setFistName(String fistName) {
 		this.fistName = fistName;
+		update();
 	}
 	
 	@XmlAttribute
@@ -66,6 +68,7 @@ public class User extends Observable{
 	}
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+		update();
 	}
 	
 	public String getStatus() {
@@ -74,6 +77,7 @@ public class User extends Observable{
 	
 	public void setStatus(String status) {
 		this.status = status;
+		update();
 	}
 	
 	public Boolean isUpdated() {
@@ -81,6 +85,7 @@ public class User extends Observable{
 	}
 	public void setUpdated(Boolean update) {
 		this.updated = update;
+		update();
 	}
 	
 	public UserStatus getUserStatus() {
@@ -89,6 +94,7 @@ public class User extends Observable{
 	
 	public void setUserStatus(UserStatus userStatus) {
 		this.userStatus = userStatus;
+		update();
 	}
 	
 	@Override
@@ -109,5 +115,10 @@ public class User extends Observable{
 	@Override
 	public String toString(){
 		return fistName + " " + lastName + " (" + username + ")";
+	}
+	
+	public void update() {
+		setChanged();
+		notifyObservers();
 	}
 }

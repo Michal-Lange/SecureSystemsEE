@@ -62,7 +62,7 @@ public class User implements Serializable {
         this.username		= user.getUsername();
         this.firstName		= user.getFirstName();
         this.lastName		= user.getLastName();        
-        this.password		= user.getPassword1();
+        this.password		= user.getPassword();
         this.registeredOn	= new Date();
     }
  
@@ -120,4 +120,12 @@ public class User implements Serializable {
                 + ", lastName=" + lastName + ", password=" + password
                 + ", registeredOn=" + registeredOn + ", groups=" + groups + "]";
     }
+
+	public String getServiceKey() {
+		return serviceKey;
+	}
+
+	public void setServiceKey(String serviceKey) {
+		this.serviceKey = serviceKey;
+	}
 }

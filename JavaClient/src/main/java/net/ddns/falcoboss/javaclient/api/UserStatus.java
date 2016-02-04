@@ -1,8 +1,8 @@
 package net.ddns.falcoboss.javaclient.api;
 
 public enum UserStatus {
-	AVAILABLE("AVAILABLE"),
-	NOTAVAILABLE("NOT AVAILABLE");
+	AVAILABLE(""),
+	NOTAVAILABLE("");
 	private String statusText;
 	UserStatus(String text){
 		this.statusText = text;

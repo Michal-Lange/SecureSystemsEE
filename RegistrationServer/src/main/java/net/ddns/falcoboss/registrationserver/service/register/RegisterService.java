@@ -30,6 +30,7 @@ import net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames;
 import net.ddns.falcoboss.common.transport.objects.KeyPairTO;
 import net.ddns.falcoboss.common.transport.objects.MessageTO;
 import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
+import net.ddns.falcoboss.common.transport.objects.UserTO;
 import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
 import net.ddns.falcoboss.registrationserver.messanger.MessangerBean;
 import net.ddns.falcoboss.registrationserver.property.reader.PropertyReader;
@@ -249,5 +250,17 @@ public class RegisterService implements RegisterServiceProxy {
 		JsonObject jsonObj = jsonObjBuilder.build();
 		Response response = Response.status(responseStatus).entity(jsonObj.toString()).build();
 		asyncResponse.resume(response);
+	}
+
+	@Override
+	public void updateUser(HttpHeaders httpHeaders, AsyncResponse async, UserTO UserTO) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void deleteUser(HttpHeaders httpHeaders, AsyncResponse async, UserTO UserTO) {
+		// TODO Auto-generated method stub
+		
 	}
 }

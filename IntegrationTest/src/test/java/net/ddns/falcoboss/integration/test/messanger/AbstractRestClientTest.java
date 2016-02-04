@@ -12,12 +12,14 @@ public abstract class AbstractRestClientTest {
 	
 	String password1Hash;
 	String password2Hash;
+	String password3Hash;
 	
     @Before
     public void initClient() throws Exception {
 		password1Hash = SHA512.hashText("password1");
 		password2Hash = SHA512.hashText("password2");
-
+		password3Hash = SHA512.hashText("password3");
+		
     	restClient = new RestClient();
   		restClient.initClient();
   		restClient.setWebTarget("http://localhost:8080/registration-server/rest/service/");

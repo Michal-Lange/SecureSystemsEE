@@ -18,13 +18,19 @@ public class ResponseFilter implements ContainerResponseFilter {
     private final static Logger log = Logger.getLogger(ResponseFilter.class.getName());
  
     @Override
-    public void filter(ContainerRequestContext requestCtx, ContainerResponseContext responseCtx) throws IOException {
+    public void filter(ContainerRequestContext requestCtx, ContainerResponseContext responseContext) throws IOException {
  
         log.info("Filtering REST Response");
  
-        responseCtx.getHeaders().add("Access-Control-Allow-Origin", "*");
-        responseCtx.getHeaders().add("Access-Control-Allow-Credentials", "true");
-        responseCtx.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
-        responseCtx.getHeaders().add("Access-Control-Allow-Headers", HTTPHeaderNames.SERVICE_KEY + ", " + HTTPHeaderNames.AUTH_TOKEN);
+        responseContext.getHeaders().add(
+        		"Access-Control-Allow-Origin", "*");
+        responseContext.getHeaders().add(
+        		"Access-Control-Allow-Credentials", "true");
+        responseContext.getHeaders().add(
+        		"Access-Control-Allow-Methods", "GET, POST, DELETE, PUT");
+        responseContext.getHeaders().add(
+        		"Access-Control-Allow-Headers", 
+        		HTTPHeaderNames.SERVICE_KEY + ", " + 
+        		HTTPHeaderNames.AUTH_TOKEN);
     }
 }

@@ -13,8 +13,10 @@ public class KeyGenerationTest {
 		
 		try {
 			Facade facade = new Facade();
-			facade.login("username1", "password1");
+			Assert.assertEquals(200, facade.login("username1", "password1").getStatus());
+			
 			facade.requestNewKey("username1", "password1");
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 			Assert.fail();

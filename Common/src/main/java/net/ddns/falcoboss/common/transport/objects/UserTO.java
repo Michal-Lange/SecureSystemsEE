@@ -31,11 +31,11 @@ public class UserTO {
         this.username = email;
     }
   
-    public String getPassword1() {
+    public String getPassword() {
         return password;
     }
      
-    public void setPassword1(String password) {
+    public void setPassword(String password) {
         this.password = password;
     }
       

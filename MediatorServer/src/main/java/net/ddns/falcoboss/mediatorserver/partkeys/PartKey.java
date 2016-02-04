@@ -14,7 +14,7 @@ import net.ddns.falcoboss.common.transport.objects.PartKeyTO;
 
 @SuppressWarnings("serial")
 @Entity
-@Table(name="PARRTKEYS")
+@Table(name="parrtkeys")
 @Cacheable(false)
 public class PartKey implements Serializable{
 	@Id

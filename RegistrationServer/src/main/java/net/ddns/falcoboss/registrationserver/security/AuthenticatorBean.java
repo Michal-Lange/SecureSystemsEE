@@ -24,12 +24,15 @@ public class AuthenticatorBean {
 	@EJB
 	UserBean userBean;
 	
-	private Map<String, String> authorizationTokensStorage = new HashMap<String, String>();
+	private Map<String, String> authorizationTokensStorage = 
+			new HashMap<String, String>();
        
-    public String login(String serviceKey, String username, String password) throws LoginException {
+    public String login(String serviceKey, String username, String password)
+    		throws LoginException {
     	User userFoundByServiceKey = userBean.findByServiceKey(serviceKey);
     	if(userFoundByServiceKey != null) {
-    		String usernameFoundByServiceKey = userFoundByServiceKey.getUsername();
+    		String usernameFoundByServiceKey = 
+    				userFoundByServiceKey.getUsername();
     		if(username.equals(usernameFoundByServiceKey))
     		{
         		User userFoundByUsername = userBean.find(username);
@@ -45,11 +48,15 @@ public class AuthenticatorBean {
     
     public boolean isAuthTokenValid(String serviceKey, String authToken) {
         if (isServiceKeyValid(serviceKey) ) {
-        	User userFoundByServiceKey = userBean.findByServiceKey(serviceKey);
-        	String usernameFoundByServiceKey = userFoundByServiceKey.getUsername();
+        	User userFoundByServiceKey = 
+        			userBean.findByServiceKey(serviceKey);
+        	String usernameFoundByServiceKey = 
+        			userFoundByServiceKey.getUsername();
              if (authorizationTokensStorage.containsKey(authToken) ) {
-                String usernameFoundByAuthorizationToken = authorizationTokensStorage.get(authToken);
-                 if (usernameFoundByServiceKey.equals(usernameFoundByAuthorizationToken) ) {
+                String usernameFoundByAuthorizationToken = 
+                		authorizationTokensStorage.get(authToken);
+                 if (usernameFoundByServiceKey.
+                		 equals(usernameFoundByAuthorizationToken) ) {
                     return true;
                 }
             }
@@ -58,7 +65,8 @@ public class AuthenticatorBean {
     }
     
     public boolean isServiceKeyValid(String serviceKey) {
-    	User userFoundByServiceKey = userBean.findByServiceKey(serviceKey);
+    	User userFoundByServiceKey = 
+    			userBean.findByServiceKey(serviceKey);
     	if(userFoundByServiceKey!=null) {
     		return true;
     	}
@@ -67,22 +75,29 @@ public class AuthenticatorBean {
     	}
     }
  
-    public void logout(String serviceKey, String authToken) throws GeneralSecurityException {
-    	User userFoundByServiceKey = userBean.findByServiceKey(serviceKey);
+    public void logout(String serviceKey, String authToken) 
+    		throws GeneralSecurityException {
+    	User userFoundByServiceKey = 
+    			userBean.findByServiceKey(serviceKey);
     	if (userFoundByServiceKey != null) {
-            String usernameFoundByServiceKey = userFoundByServiceKey.getUsername();
+            String usernameFoundByServiceKey = 
+            		userFoundByServiceKey.getUsername();
             if (authorizationTokensStorage.containsKey(authToken) ) {
-                String usernameFoundByAuthorizationToken = authorizationTokensStorage.get(authToken);
-                if (usernameFoundByServiceKey.equals(usernameFoundByAuthorizationToken)) {
+                String usernameFoundByAuthorizationToken = 
+                		authorizationTokensStorage.get(authToken);
+                if (usernameFoundByServiceKey.
+                		equals(usernameFoundByAuthorizationToken)) {
                     authorizationTokensStorage.remove(authToken);
                     return;
                 }
             }
         }
-        throw new GeneralSecurityException("Invalid service key and authorization token match.");
+        throw new GeneralSecurityException(
+        		"Invalid service key and authorization token match.");
     }
     
-    public boolean isUsernameAndPasswordValid(String serviceKey, String username, String password) {
+    public boolean isUsernameAndPasswordValid(
+    		String serviceKey, String username, String password) {
     	User userFoundByServiceKey = userBean.findByServiceKey(serviceKey);
     	if(userFoundByServiceKey != null) {
     		String usernameMatch = userFoundByServiceKey.getUsername();
