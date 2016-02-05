@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<class-diagram version="1.1.9" icons="true" always-add-relationships="false" generalizations="true" realizations="true" 
+  associations="true" dependencies="false" nesting-relationships="true" router="FAN">  
+  <class id="1" language="java" name="net.ddns.falcoboss.common.transport.objects.MessageTO" project="common" 
+    file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/MessageTO.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="528" y="206"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="2" language="java" name="net.ddns.falcoboss.common.transport.objects.KeyPairTO" project="common" 
+    file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/KeyPairTO.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="320" y="134"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="3" language="java" name="net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO" project="common" 
+    file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/PartiallySignatureTO.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="-1" width="-1" x="110" y="105"/>    
+    <display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="4" language="java" name="net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO" 
+    project="common" file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/UsernameAndPasswordTO.java" 
+    binary="false" corner="BOTTOM_RIGHT">    
+    <position height="210" width="202" x="428" y="416"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <interface id="5" language="java" name="net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames" project="common" 
+    file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/HTTPHeaderNames.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="99" width="208" x="6" y="216"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </interface>  
+  <class id="6" language="java" name="net.ddns.falcoboss.common.transport.objects.UserTO" project="common" 
+    file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/UserTO.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="356" width="202" x="221" y="270"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <class id="7" language="java" name="net.ddns.falcoboss.common.transport.objects.PartKeyTO" project="common" 
+    file="/common/src/main/java/net/ddns/falcoboss/common/transport/objects/PartKeyTO.java" binary="false" 
+    corner="BOTTOM_RIGHT">    
+    <position height="303" width="210" x="6" y="321"/>    
+    <display autosize="false" stereotype="true" package="true" initial-value="false" signature="true" 
+      sort-features="false" accessors="true" visibility="true">      
+      <attributes public="true" package="true" protected="true" private="true" static="true"/>      
+      <operations public="true" package="true" protected="true" private="true" static="true"/>    
+    </display>  
+  </class>  
+  <classifier-display autosize="true" stereotype="true" package="true" initial-value="false" signature="true" 
+    sort-features="false" accessors="true" visibility="true">    
+    <attributes public="true" package="true" protected="true" private="true" static="true"/>    
+    <operations public="true" package="true" protected="true" private="true" static="true"/>  
+  </classifier-display>  
+  <association-display labels="true" multiplicity="true"/>
+</class-diagram>

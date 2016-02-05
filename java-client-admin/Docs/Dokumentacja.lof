@@ -1,0 +1,34 @@
+\select@language {polish}
+\select@language {polish}
+\contentsline {figure}{\numberline {1}{\ignorespaces Kierunek wywo\IeC {\l }ywania komponet\'ow systemu.\relax }}{9}
+\contentsline {figure}{\numberline {2}{\ignorespaces Diagram przypadk\'ow u\.zycia.\relax }}{12}
+\contentsline {figure}{\numberline {3}{\ignorespaces Wielowarstwowa aplikacja w technologii Java EE\cite {JavaEETutorial1}.\relax }}{20}
+\contentsline {figure}{\numberline {4}{\ignorespaces Serwer i kontenery Javy EE\cite {JavaEETutorial1}.\relax }}{22}
+\contentsline {figure}{\numberline {5}{\ignorespaces Przetwarzanie potokowe filtr\'ow w JAX-RS 2.0\cite {JaxRSFilters1} \relax }}{27}
+\contentsline {figure}{\numberline {6}{\ignorespaces Diagram klas - obiekty transportowe.\relax }}{35}
+\contentsline {figure}{\numberline {7}{\ignorespaces Logowanie do systemu - diagram aktywno\'sci.\relax }}{37}
+\contentsline {figure}{\numberline {8}{\ignorespaces Logowanie do systemu - diagram sekwencji.\relax }}{38}
+\contentsline {figure}{\numberline {9}{\ignorespaces Wysy\IeC {\l }anie wiadomo\'sci - diagram aktywno\'sci.\relax }}{40}
+\contentsline {figure}{\numberline {10}{\ignorespaces Wysy\IeC {\l }anie wiadomo\'sci - diagram sekwencji.\relax }}{41}
+\contentsline {figure}{\numberline {11}{\ignorespaces Odbi\'or wiadomo\'sci - diagram aktywno\'sci.\relax }}{43}
+\contentsline {figure}{\numberline {12}{\ignorespaces Odbi\'or wiadomo\'sci - diagram sekwencji.\relax }}{44}
+\contentsline {figure}{\numberline {13}{\ignorespaces Diagram aktywno\'sci - generowanie pary kluczy.\relax }}{46}
+\contentsline {figure}{\numberline {14}{\ignorespaces Diagram sekwencji - generowanie pary kluczy.\relax }}{47}
+\contentsline {figure}{\numberline {15}{\ignorespaces Diagram aktywno\'sci - podpisywanie pliku.\relax }}{49}
+\contentsline {figure}{\numberline {16}{\ignorespaces Diagram sekwencji - podpisywanie pliku.\relax }}{50}
+\contentsline {figure}{\numberline {17}{\ignorespaces Interakcje mi\k edzy komponentami serwera dost\k epowego.\relax }}{52}
+\contentsline {figure}{\numberline {18}{\ignorespaces Uproszczony diagram klas serwera dost\k epowego.\relax }}{53}
+\contentsline {figure}{\numberline {19}{\ignorespaces Diagram wybranych klas serwera dost\k epowego.\relax }}{54}
+\contentsline {figure}{\numberline {20}{\ignorespaces Interakcje mi\k edzy komponentami mediatora.\relax }}{55}
+\contentsline {figure}{\numberline {21}{\ignorespaces Diagram wybranych klas mediatora.\relax }}{56}
+\contentsline {figure}{\numberline {22}{\ignorespaces Interakcje mi\k edzy komponentami klienta.\relax }}{57}
+\contentsline {figure}{\numberline {23}{\ignorespaces Uproszczony diagram klas klienta.\relax }}{58}
+\contentsline {figure}{\numberline {24}{\ignorespaces Diagram wybranych klas klienta.\relax }}{59}
+\contentsline {figure}{\numberline {25}{\ignorespaces \'Srodowisko testowe.\relax }}{65}
+\contentsline {figure}{\numberline {26}{\ignorespaces Przyk\IeC {\l }adowe \'srodowisko produkcyjne.\relax }}{66}
+\contentsline {figure}{\numberline {27}{\ignorespaces Komunikat w przypadku b\IeC {\l }\k ednego loginu, has\IeC {\l }a lub klucza serwisowego.\relax }}{73}
+\contentsline {figure}{\numberline {28}{\ignorespaces G\IeC {\l }\'owne okno programu, okno wiadomo\'sci i okno tokena.\relax }}{74}
+\contentsline {figure}{\numberline {29}{\ignorespaces Pomy\'slna oraz niepomy\'slna weryfikacja podpisu.\relax }}{75}
+\contentsline {figure}{\numberline {30}{\ignorespaces Czasy faktoryzacji liczb.\relax }}{77}
+\contentsline {figure}{\numberline {31}{\ignorespaces Czasy generowania kluczy.\relax }}{79}
+\contentsline {figure}{\numberline {32}{\ignorespaces Generowanie klucza - z\IeC {\l }e has\IeC {\l }o.\relax }}{81}

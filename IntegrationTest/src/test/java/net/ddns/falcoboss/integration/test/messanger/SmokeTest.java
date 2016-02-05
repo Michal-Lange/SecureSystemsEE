@@ -26,7 +26,7 @@ public class SmokeTest extends AbstractRestClientTest{
 	for(int i=0; i<100; i++){
 	    MessageTO message = new MessageTO();
 	    message.setSender("username3");
-	    message.setRecipient("username2");
+	    message.setRecipient("username1");
 	    restClient3.sendMessage(message);
 	}
 	
