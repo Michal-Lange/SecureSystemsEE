@@ -30,7 +30,7 @@ public class RequestFilter implements ContainerRequestFilter {
     public void filter(ContainerRequestContext requestContext) 
     		throws IOException {
     	String path = requestContext.getUriInfo().getPath();
-        log.info( "Filtering request path: " + path );
+        log.info("Filtering request path: " + path);
         String serviceKey = 
         		requestContext.getHeaderString(HTTPHeaderNames.SERVICE_KEY);
         if (!authenticatorBean.isServiceKeyValid(serviceKey)) {
@@ -39,7 +39,7 @@ public class RequestFilter implements ContainerRequestFilter {
             return;
         }
  
-        if (!path.startsWith( "service/login/" )) {
+        if (!path.startsWith("service/login/")) {
             String authToken = 
             		requestContext.getHeaderString(
             				HTTPHeaderNames.AUTH_TOKEN);

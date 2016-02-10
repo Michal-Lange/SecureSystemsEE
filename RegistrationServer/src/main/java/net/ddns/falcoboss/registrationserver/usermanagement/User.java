@@ -65,8 +65,8 @@ public class User implements Serializable {
         this.password		= user.getPassword();
         this.registeredOn	= new Date();
     }
- 
-    public String getFirstName() {
+
+        public String getFirstName() {
         return firstName;
     }
  

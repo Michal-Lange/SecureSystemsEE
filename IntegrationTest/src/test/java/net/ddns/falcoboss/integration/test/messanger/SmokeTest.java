@@ -1,15 +1,11 @@
 package net.ddns.falcoboss.integration.test.messanger;
 
-import java.util.concurrent.Future;
-
 import javax.ws.rs.core.Response;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import net.ddns.falcoboss.common.transport.objects.MessageTO;
-import net.ddns.falcoboss.javaclient.api.Facade;
 
 
 public class SmokeTest extends AbstractRestClientTest{

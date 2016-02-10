@@ -60,6 +60,12 @@ public interface RegisterServiceProxy extends Serializable {
     public void signFile(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final PartiallySignatureTO partiallySignatureTO);
     
     @POST
+    @Path("add-user")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void addUser(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UserTO UserTO);
+   
+    @POST
     @Path("update-user")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -70,4 +76,10 @@ public interface RegisterServiceProxy extends Serializable {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteUser(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UserTO UserTO);
+
+    @POST
+    @Path("change-password")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public void changePassword(@Context HttpHeaders httpHeaders, @Suspended AsyncResponse async, final UserTO UserTO);
 }

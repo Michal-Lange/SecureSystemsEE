@@ -12,5 +12,6 @@
    	<module>../MediatorServer</module>
   	<module>../JavaClient</module>
   	<module>../IntegrationTest</module>
+  	<module>../java-client-admin</module>
   </modules>
 </project>

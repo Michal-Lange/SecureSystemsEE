@@ -6,8 +6,17 @@ public class UserTO {
     private String firstName;
     private String lastName;
     private String password;
+    private String newPassword;
      
-    public String getFirstName() {
+    public String getNewPassword() {
+		return newPassword;
+	}
+
+	public void setNewPassword(String newPassword) {
+		this.newPassword = newPassword;
+	}
+
+	public String getFirstName() {
         return firstName;
     }
      

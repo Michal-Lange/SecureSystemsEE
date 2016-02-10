@@ -44,10 +44,6 @@ public class SignatureAssemblyTest {
 			PublicKey commonPublicKey = newKeyPair.getPublic();
 			RSAPrivateKey commonPrivateKey = (RSAPrivateKey) newKeyPair.getPrivate();
 			
-			String mediatorOwnModulus = "APGBsXYWAjLQewbQWxmoyQaY+EllH1MdXoGVUW0rmfP+g8XMw2AqAXgW5NHZK6dwIZ0CVzkBDf0M8JMWMDqUsGho0H+N1q+NIiwADmg061AEoS2rL9Jm5ulm7VPmShnoRuNog7s+PR3F8xSJMGbHctBQ1gRdqGst3q9NsehLdmJ731YiNCMhrC/X4TRgbudCL0CDVJ+J6mntf11HNzXO+c5EvAmyaf4zJDWIU0veosOCK6EMcFYv5HQWkmwEcIT5DdKdM8af10tMx36uC3+UlXYQDWHd96OupWRBLStyZIWcHJqWPrrf2GsJf5MoYt1ZHmZZQ4ee2d9vJA+zAzt6qjc=";
-			String mediatorOwnPrivateExponent = "+wUxqcOgkOMTWy2oA4U7OrtQXCL6hAHya/DlEGmCyH0UQ==";
-			PrivateKey mediatorOwnKey  = KeyHelper.getPrivateKeyFromBase64ExponentAndModulus(mediatorOwnPrivateExponent, mediatorOwnModulus);
-			
 			BigInteger modulus = ((RSAPublicKey)commonPublicKey).getModulus();
 			BigInteger commonPrivateExponent = commonPrivateKey.getPrivateExponent();
 			BigInteger mediatorPrivateExponent = PartKeyGenerator.generateFinalizationKeyExponent("testServiceKey", modulus.bitLength(), delta, mediatorOwnKey);
@@ -59,7 +55,8 @@ public class SignatureAssemblyTest {
 			BigInteger pMinusOne = pkSpec.getPrimeP().subtract(BigInteger.ONE);
 			BigInteger qMinusOne = pkSpec.getPrimeQ().subtract(BigInteger.ONE);
 			BigInteger fi = (pMinusOne.multiply(qMinusOne));
-
+			
+			System.out.println(commonPrivateKey);
 			BigInteger userPrivateExponent = (commonPrivateExponent.subtract(mediatorPrivateExponent)).mod(fi);
 	
 			Assert.assertEquals(commonPrivateKey.getPrivateExponent(), (userPrivateExponent.add(mediatorPrivateExponent)).mod(fi));
