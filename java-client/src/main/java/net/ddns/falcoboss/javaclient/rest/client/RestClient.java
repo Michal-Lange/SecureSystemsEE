@@ -1,4 +1,4 @@
-package net.ddns.falcoboss.javaclient.admin.rest.client;
+package net.ddns.falcoboss.javaclient.rest.client;
 
 import java.util.concurrent.Future;
 
@@ -16,7 +16,8 @@ import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 
 import net.ddns.falcoboss.common.transport.objects.HTTPHeaderNames;
-import net.ddns.falcoboss.common.transport.objects.UserTO;
+import net.ddns.falcoboss.common.transport.objects.MessageTO;
+import net.ddns.falcoboss.common.transport.objects.PartiallySignatureTO;
 import net.ddns.falcoboss.common.transport.objects.UsernameAndPasswordTO;
 
 public class RestClient {
@@ -94,14 +95,47 @@ public class RestClient {
 	    return response;
 	}
 	
-	final public Future<Response> changePassword(UserTO usertTO) {
+	public Response sendMessage(MessageTO message){
+		Response response =
+				this.webTarget.path("send-message/").request().
+				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
+				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
+				accept(MediaType.APPLICATION_JSON).
+				post(Entity.entity(message, MediaType.APPLICATION_JSON));
+		return response;
+	}
+	
+	final public Future<Response> reciveMessage() {
 		final Future<Response> futureResponse =
-				this.webTarget.path("change-password/").request().
+				this.webTarget.path("recive-message/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
 				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
 				accept(MediaType.APPLICATION_JSON).
 				async()
-				.post(Entity.entity(usertTO, MediaType.APPLICATION_JSON),
+				.get(new InvocationCallback<Response>()
+				{
+					@Override
+			        public void completed(Response response) {
+						//Message message = response.readEntity(Message.class);
+						System.out.println("InvocationCallback completed: reciveMessage method.");
+			        }
+					@Override
+			        public void failed(Throwable throwable) {
+						System.err.println("FAILURE!: " + throwable.getLocalizedMessage());
+			        }
+			    });
+		return futureResponse;
+	}
+	
+	final public Future<Response> requestNewKey(String username, String password) {
+		UsernameAndPasswordTO usernameAndPasswordBean = new UsernameAndPasswordTO(username, password);
+		final Future<Response> futureResponse =
+				this.webTarget.path("request-new-key/").request().
+				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
+				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
+				accept(MediaType.APPLICATION_JSON).
+				async()
+				.post(Entity.entity(usernameAndPasswordBean, MediaType.APPLICATION_JSON),
 				new InvocationCallback<Response>()
 				{
 					@Override
@@ -117,20 +151,23 @@ public class RestClient {
 		return futureResponse;
 	}
 	
-	final public Future<Response> addUser(UserTO usertTO) {
+	final public Future<Response> signFile(String partialySignedHash, String fileHash) {
+		PartiallySignatureTO partiallySignatureTO = new PartiallySignatureTO();
+		partiallySignatureTO.setFileHash(fileHash);
+		partiallySignatureTO.setPatiallySignedFileHash(partialySignedHash);
 		final Future<Response> futureResponse =
-				this.webTarget.path("add-user/").request().
+				this.webTarget.path("sign-file/").request().
 				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
 				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
 				accept(MediaType.APPLICATION_JSON).
 				async()
-				.post(Entity.entity(usertTO, MediaType.APPLICATION_JSON),
+				.post(Entity.entity(partiallySignatureTO, MediaType.APPLICATION_JSON),
 				new InvocationCallback<Response>()
 				{
 					@Override
 			        public void completed(Response response) {
 						//Message message = response.readEntity(Message.class);
-						System.out.println("InvocationCallback completed: requestNewKey method.");
+						System.out.println("InvocationCallback completed: signFile method.");
 			        }
 					@Override
 			        public void failed(Throwable throwable) {
@@ -138,54 +175,9 @@ public class RestClient {
 			        }
 			    });
 		return futureResponse;
+		
 	}
-	
-	final public Future<Response> updateUser(UserTO usertTO) {
-		final Future<Response> futureResponse =
-				this.webTarget.path("update-user/").request().
-				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
-				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
-				accept(MediaType.APPLICATION_JSON).
-				async()
-				.post(Entity.entity(usertTO, MediaType.APPLICATION_JSON),
-				new InvocationCallback<Response>()
-				{
-					@Override
-			        public void completed(Response response) {
-						//Message message = response.readEntity(Message.class);
-						System.out.println("InvocationCallback completed: requestNewKey method.");
-			        }
-					@Override
-			        public void failed(Throwable throwable) {
-						System.err.println("FAILURE!: " + throwable.getLocalizedMessage());
-			        }
-			    });
-		return futureResponse;
-	}
-	
-	final public Future<Response> deleteUser(UserTO usertTO) {
-		final Future<Response> futureResponse =
-				this.webTarget.path("delete-user/").request().
-				header(HTTPHeaderNames.SERVICE_KEY, this.serviceKey).
-				header(HTTPHeaderNames.AUTH_TOKEN, this.authToken.get("auth_token")).
-				accept(MediaType.APPLICATION_JSON).
-				async()
-				.post(Entity.entity(usertTO, MediaType.APPLICATION_JSON),
-				new InvocationCallback<Response>()
-				{
-					@Override
-			        public void completed(Response response) {
-						//Message message = response.readEntity(Message.class);
-						System.out.println("InvocationCallback completed: requestNewKey method.");
-			        }
-					@Override
-			        public void failed(Throwable throwable) {
-						System.err.println("FAILURE!: " + throwable.getLocalizedMessage());
-			        }
-			    });
-		return futureResponse;
-	}
-	
+
 	public JSONObject getAuthToken() {
 		return this.authToken;
 	}
